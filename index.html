@@ -293,73 +293,92 @@ body{font-family:'Inter',-apple-system,sans-serif;background:var(--bg);color:var
 <!-- ══ POINTAGE ══ -->
 <section id="pointage" class="sec active">
 
-  <!-- Vue caméra principale -->
-  <div id="cam-zone" style="background:var(--navy);border-radius:var(--rl);overflow:hidden;margin-bottom:10px;position:relative;">
-    <!-- Horloge -->
-    <div style="display:flex;align-items:center;justify-content:space-between;padding:12px 16px 8px;">
+  <div style="background:var(--navy);border-radius:var(--rl);overflow:hidden;margin-bottom:10px;">
+
+    <!-- Header -->
+    <div style="display:flex;align-items:center;justify-content:space-between;padding:14px 16px 10px;">
       <div>
-        <div style="color:rgba(255,255,255,.5);font-size:10px;letter-spacing:1.5px;text-transform:uppercase;">Pointage du jour</div>
-        <div class="qrz-time" id="qr-clock" style="font-size:32px;margin:0;">--:--:--</div>
-        <div class="qrz-date" id="qr-date" style="margin:0;"></div>
+        <div style="color:rgba(255,255,255,.45);font-size:10px;letter-spacing:1.5px;text-transform:uppercase;margin-bottom:2px;">Pointage du jour</div>
+        <div id="qr-clock" style="color:#fff;font-size:30px;font-weight:200;font-variant-numeric:tabular-nums;letter-spacing:-1px;line-height:1;">--:--:--</div>
+        <div id="qr-date" style="color:rgba(255,255,255,.4);font-size:12px;margin-top:2px;"></div>
       </div>
       <div id="cam-user-badge" style="text-align:right;">
-        <div id="cam-emp-av" style="width:40px;height:40px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:13px;font-weight:700;margin-left:auto;margin-bottom:4px;"></div>
-        <div id="cam-emp-name" style="color:rgba(255,255,255,.7);font-size:12px;font-weight:600;"></div>
+        <div id="cam-emp-av" style="width:38px;height:38px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:700;margin-left:auto;margin-bottom:4px;"></div>
+        <div id="cam-emp-name" style="color:rgba(255,255,255,.65);font-size:12px;font-weight:600;"></div>
+        <div id="cam-emp-status" style="font-size:10px;color:rgba(255,255,255,.35);margin-top:1px;"></div>
       </div>
     </div>
 
-    <!-- Viewfinder caméra -->
-    <div id="cam-viewfinder" style="position:relative;background:#000;margin:0 16px;border-radius:12px;overflow:hidden;aspect-ratio:1/1;">
-      <video id="cam-video" style="width:100%;height:100%;object-fit:cover;" playsinline autoplay muted></video>
+    <!-- GRAND BOUTON SCANNER — geste principal -->
+    <div style="padding:0 16px 14px;">
+      <button id="btn-scan-big" onclick="startCamera()"
+        style="width:100%;background:rgba(255,255,255,.1);border:2px dashed rgba(255,255,255,.25);border-radius:16px;
+               padding:28px 16px;cursor:pointer;font-family:inherit;transition:all .2s;display:flex;flex-direction:column;align-items:center;gap:10px;">
+        <div style="font-size:52px;line-height:1;">📷</div>
+        <div style="color:#fff;font-size:17px;font-weight:700;">Scanner le QR code</div>
+        <div style="color:rgba(255,255,255,.45);font-size:12px;">Appuyez ici pour ouvrir la caméra</div>
+      </button>
+    </div>
+
+    <!-- Viewfinder (caché jusqu'au scan) -->
+    <div id="cam-viewfinder" style="display:none;position:relative;background:#000;margin:0 16px 14px;border-radius:12px;overflow:hidden;">
+      <video id="cam-video" style="width:100%;display:block;max-height:300px;object-fit:cover;" playsinline muted></video>
       <canvas id="cam-canvas" style="display:none;"></canvas>
-      <!-- Viseur QR -->
+      <!-- Coins viseur -->
       <div style="position:absolute;inset:0;display:flex;align-items:center;justify-content:center;pointer-events:none;">
-        <div style="width:55%;height:55%;position:relative;">
-          <div style="position:absolute;top:0;left:0;width:20px;height:20px;border-top:3px solid #fff;border-left:3px solid #fff;border-radius:3px 0 0 0;"></div>
-          <div style="position:absolute;top:0;right:0;width:20px;height:20px;border-top:3px solid #fff;border-right:3px solid #fff;border-radius:0 3px 0 0;"></div>
-          <div style="position:absolute;bottom:0;left:0;width:20px;height:20px;border-bottom:3px solid #fff;border-left:3px solid #fff;border-radius:0 0 0 3px;"></div>
-          <div style="position:absolute;bottom:0;right:0;width:20px;height:20px;border-bottom:3px solid #fff;border-right:3px solid #fff;border-radius:0 0 3px 0;"></div>
-          <div id="scan-line" style="position:absolute;top:0;left:0;right:0;height:2px;background:rgba(45,209,90,.8);box-shadow:0 0 6px rgba(45,209,90,.6);animation:scanline 2s linear infinite;"></div>
+        <div style="width:50%;height:50%;position:relative;">
+          <div style="position:absolute;top:0;left:0;width:22px;height:22px;border-top:3px solid #fff;border-left:3px solid #fff;border-radius:3px 0 0 0;"></div>
+          <div style="position:absolute;top:0;right:0;width:22px;height:22px;border-top:3px solid #fff;border-right:3px solid #fff;border-radius:0 3px 0 0;"></div>
+          <div style="position:absolute;bottom:0;left:0;width:22px;height:22px;border-bottom:3px solid #fff;border-left:3px solid #fff;border-radius:0 0 0 3px;"></div>
+          <div style="position:absolute;bottom:0;right:0;width:22px;height:22px;border-bottom:3px solid #fff;border-right:3px solid #fff;border-radius:0 0 3px 0;"></div>
+          <div id="scan-line" style="position:absolute;top:0;left:0;right:0;height:2px;background:rgba(45,209,90,.9);box-shadow:0 0 8px rgba(45,209,90,.7);animation:scanline 1.8s ease-in-out infinite;"></div>
         </div>
       </div>
-      <!-- Overlay statut caméra -->
-      <div id="cam-status" style="position:absolute;inset:0;background:rgba(28,43,74,.85);display:flex;flex-direction:column;align-items:center;justify-content:center;gap:10px;">
-        <div style="font-size:36px;">📷</div>
-        <div id="cam-status-txt" style="color:rgba(255,255,255,.8);font-size:13px;text-align:center;padding:0 1rem;">Appuyez pour activer la caméra</div>
-        <button id="cam-start-btn" onclick="startCamera()" style="background:var(--jade);color:#fff;border:none;border-radius:10px;padding:10px 24px;font-size:13px;font-weight:600;cursor:pointer;font-family:inherit;">Activer la caméra</button>
-      </div>
+      <!-- Bouton fermer -->
+      <button onclick="stopCamera()" style="position:absolute;top:10px;right:10px;background:rgba(0,0,0,.5);border:none;color:#fff;width:32px;height:32px;border-radius:50%;font-size:16px;cursor:pointer;display:flex;align-items:center;justify-content:center;">✕</button>
     </div>
 
-    <!-- Statut scan -->
-    <div id="scan-result" style="display:none;padding:10px 16px;background:rgba(45,125,90,.3);margin:10px 16px;border-radius:10px;color:#fff;font-size:13px;font-weight:600;text-align:center;"></div>
+    <!-- Message statut scan -->
+    <div id="scan-msg" style="display:none;margin:0 16px 12px;padding:10px 14px;border-radius:10px;font-size:13px;font-weight:600;text-align:center;color:#fff;"></div>
 
-    <!-- Boutons manuels (secours) -->
-    <div style="padding:12px 16px 16px;">
-      <div style="font-size:10px;color:rgba(255,255,255,.3);text-align:center;margin-bottom:8px;letter-spacing:.5px;">— OU POINTER MANUELLEMENT —</div>
+    <!-- Séparateur + boutons manuels (recours) -->
+    <div style="padding:0 16px 16px;">
+      <div style="font-size:10px;color:rgba(255,255,255,.25);text-align:center;letter-spacing:.8px;text-transform:uppercase;margin-bottom:10px;">— Ou pointer sans QR code —</div>
       <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;">
-        <button class="qrz-btn-a" id="qr-arr" onclick="ptPointer('arrivee')" disabled>✓ Arrivée</button>
-        <button class="qrz-btn-d" id="qr-dep" onclick="ptPointer('depart')" disabled>↪ Départ</button>
+        <button id="qr-arr" onclick="ptPointer('arrivee')" disabled
+          style="padding:12px;background:rgba(45,125,90,.35);color:#fff;border:1px solid rgba(45,125,90,.5);border-radius:10px;font-size:13px;font-weight:600;cursor:pointer;font-family:inherit;opacity:.7;">
+          ✓ Arrivée
+        </button>
+        <button id="qr-dep" onclick="ptPointer('depart')" disabled
+          style="padding:12px;background:rgba(255,255,255,.08);color:#fff;border:1px solid rgba(255,255,255,.15);border-radius:10px;font-size:13px;font-weight:600;cursor:pointer;font-family:inherit;opacity:.7;">
+          ↪ Départ
+        </button>
       </div>
-      <div class="qrz-lock" style="margin-top:8px;">🔒 Horodatage automatique · non modifiable</div>
+      <div style="color:rgba(255,255,255,.25);font-size:11px;text-align:center;margin-top:8px;">🔒 Horodatage automatique · non modifiable</div>
     </div>
+
   </div>
 
   <!-- Confirmation succès -->
-  <div id="pt-success" style="display:none;background:var(--jade);border-radius:var(--rl);padding:1.5rem;text-align:center;margin-bottom:10px;">
-    <div style="font-size:48px;margin-bottom:8px;" id="pt-success-icon">✅</div>
-    <div style="color:#fff;font-size:20px;font-weight:700;" id="pt-success-title">Arrivée enregistrée</div>
-    <div style="color:rgba(255,255,255,.7);font-size:28px;font-weight:300;font-variant-numeric:tabular-nums;margin:6px 0;" id="pt-success-time">--:--</div>
-    <div style="color:rgba(255,255,255,.6);font-size:13px;" id="pt-success-sub"></div>
+  <div id="pt-success" style="display:none;background:var(--jade);border-radius:var(--rl);padding:2rem;text-align:center;margin-bottom:10px;animation:fadeIn .3s ease;">
+    <div style="font-size:56px;margin-bottom:10px;" id="pt-success-icon">✅</div>
+    <div style="color:#fff;font-size:22px;font-weight:700;margin-bottom:4px;" id="pt-success-title">Arrivée enregistrée !</div>
+    <div style="color:rgba(255,255,255,.75);font-size:36px;font-weight:200;font-variant-numeric:tabular-nums;margin:8px 0;" id="pt-success-time">--:--</div>
+    <div style="color:rgba(255,255,255,.6);font-size:14px;" id="pt-success-sub"></div>
   </div>
 
   <div class="card">
     <div class="clabel">Semaine en cours — vue équipe</div>
     <div id="semaine-tbl"></div>
   </div>
+
 </section>
 
 <style>
-@keyframes scanline{0%{top:0%}100%{top:calc(100% - 2px)}}
+@keyframes scanline{0%{top:5%}100%{top:90%}}
+@keyframes fadeIn{from{opacity:0;transform:scale(.95)}to{opacity:1;transform:scale(1)}}
+#qr-arr:not(:disabled){opacity:1!important;}
+#qr-dep:not(:disabled){opacity:1!important;}
 </style>
 
 <!-- ══ ÉQUIPE ══ -->
@@ -686,8 +705,7 @@ function checkPin(){
     qrSel=currentUser;
     renderPointage();
     renderEquipe();
-    // Démarrer la caméra automatiquement
-    setTimeout(startCamera, 500);
+    // La caméra sera démarrée par geste utilisateur (bouton scanner)
   } else {
     document.getElementById("pin-err").textContent="Code incorrect, réessayez.";
     pinBuf="";updateDots();
@@ -719,7 +737,7 @@ function goTab(id,el){
   document.querySelectorAll(".sec").forEach(s=>s.classList.remove("active"));
   if(el)el.classList.add("active");
   document.getElementById(id).classList.add("active");
-  if(id==="pointage"){ renderPointage(); setTimeout(startCamera, 300); }
+  if(id==="pointage"){ renderPointage(); }
   else if(id==="equipe")renderEquipe();
   else if(id==="agenda")renderAgenda();
   else if(id==="conges")renderConges();
@@ -730,94 +748,146 @@ function goTab(id,el){
 /* ════════════════════════════════
    CAMÉRA QR
 ════════════════════════════════ */
-let camStream = null;
+let camStream   = null;
 let camInterval = null;
-let lastScan = 0; // timestamp dernier scan valide
-
-const QR_CODE_SECRET = "RMV-POINTAGE-2024"; // doit correspondre au QR code affiché
+let lastScan    = 0;
+const QR_SECRET = "RMV-POINTAGE-2024";
+const AV_BG     = ["#D1FAE5","#FCE7F3","#FEF9C3"];
+const AV_COL    = ["#065F46","#9D174D","#854D0E"];
 
 function renderPointage(){
-  // Mettre à jour le badge employé
   if(currentUser !== null){
     const emp = EMPLOYEES[currentUser];
-    const avEl = document.getElementById("cam-emp-av");
-    avEl.textContent = emp.initials;
-    avEl.className = "av-"+currentUser;
-    avEl.style.cssText = `width:40px;height:40px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:13px;font-weight:700;background:${["#D1FAE5","#FCE7F3","#FEF9C3"][currentUser]};color:${["#065F46","#9D174D","#854D0E"][currentUser]};`;
+    const av  = document.getElementById("cam-emp-av");
+    av.textContent = emp.initials;
+    av.style.cssText = `width:38px;height:38px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:700;margin-left:auto;margin-bottom:4px;background:${AV_BG[currentUser]};color:${AV_COL[currentUser]};`;
     document.getElementById("cam-emp-name").textContent = emp.name.split(" ")[0];
+    // Statut aujourd'hui
+    const p = ldPT()[currentUser]?.[todayISO()]||{};
+    const st = !p.arrivee ? "Non pointé" : !p.depart ? "Arrivée "+p.arrivee : p.arrivee+"→"+p.depart;
+    document.getElementById("cam-emp-status").textContent = st;
   }
-  // Boutons manuels
   qrSel = currentUser;
   updateManualBtns();
   renderSemaine();
 }
 
 function updateManualBtns(){
-  const today = todayISO();
-  const p = qrSel !== null ? (ldPT()[qrSel]?.[today]||{}) : {};
-  document.getElementById("qr-arr").disabled = qrSel===null || !!p.arrivee;
-  document.getElementById("qr-dep").disabled = qrSel===null || !p.arrivee || !!p.depart;
+  const p = currentUser!==null ? (ldPT()[currentUser]?.[todayISO()]||{}) : {};
+  const arrBtn = document.getElementById("qr-arr");
+  const depBtn = document.getElementById("qr-dep");
+  const canArr = currentUser!==null && !p.arrivee;
+  const canDep = currentUser!==null && !!p.arrivee && !p.depart;
+  arrBtn.disabled = !canArr;
+  depBtn.disabled = !canDep;
+  arrBtn.style.opacity = canArr ? "1" : "0.4";
+  depBtn.style.opacity = canDep ? "1" : "0.4";
 }
 
+/* ── Démarrer la caméra (déclenché par geste utilisateur) ── */
 async function startCamera(){
-  document.getElementById("cam-start-btn").textContent = "Activation…";
-  document.getElementById("cam-status-txt").textContent = "Accès à la caméra en cours…";
+  const bigBtn    = document.getElementById("btn-scan-big");
+  const viewfinder= document.getElementById("cam-viewfinder");
+  const video     = document.getElementById("cam-video");
+
+  bigBtn.innerHTML = `<div style="font-size:36px;line-height:1;">⏳</div><div style="color:#fff;font-size:15px;font-weight:700;">Activation…</div>`;
+  bigBtn.disabled  = true;
+
   try {
-    camStream = await navigator.mediaDevices.getUserMedia({
-      video: { facingMode: "environment", width:{ideal:1280}, height:{ideal:720} }
-    });
-    const video = document.getElementById("cam-video");
+    // Contraintes caméra : préférer caméra arrière
+    const constraints = {
+      video: {
+        facingMode: { ideal: "environment" },
+        width:  { ideal: 1280 },
+        height: { ideal: 720 }
+      }
+    };
+    camStream = await navigator.mediaDevices.getUserMedia(constraints);
     video.srcObject = camStream;
+
+    // Attendre que la vidéo soit prête
+    await new Promise((resolve, reject) => {
+      video.onloadedmetadata = resolve;
+      video.onerror = reject;
+      setTimeout(reject, 8000); // timeout 8s
+    });
     await video.play();
-    document.getElementById("cam-status").style.display = "none";
+
+    // Afficher le viewfinder, cacher le bouton
+    bigBtn.style.display    = "none";
+    viewfinder.style.display = "block";
+
     startScanLoop();
+
   } catch(err){
-    console.error(err);
-    document.getElementById("cam-status-txt").textContent = "Caméra non disponible. Utilisez les boutons ci-dessous.";
-    document.getElementById("cam-start-btn").textContent = "Réessayer";
+    console.error("Caméra:", err.name, err.message);
+    bigBtn.disabled = false;
+    let msg = "Appuyez ici pour scanner";
+    if(err.name === "NotAllowedError")
+      msg = "Accès refusé — autorisez la caméra dans les réglages du navigateur";
+    else if(err.name === "NotFoundError")
+      msg = "Aucune caméra détectée — utilisez les boutons ci-dessous";
+    else if(err.name === "NotReadableError")
+      msg = "Caméra occupée par une autre app — fermez-la puis réessayez";
+    bigBtn.innerHTML = `<div style="font-size:40px;line-height:1;">📷</div><div style="color:#fff;font-size:15px;font-weight:700;">Scanner le QR code</div><div style="color:rgba(255,100,100,.8);font-size:12px;margin-top:4px;">${msg}</div>`;
   }
 }
 
 function startScanLoop(){
   const video  = document.getElementById("cam-video");
   const canvas = document.getElementById("cam-canvas");
-  const ctx    = canvas.getContext("2d");
-  camInterval  = setInterval(()=>{
-    if(video.readyState !== video.HAVE_ENOUGH_DATA) return;
+  const ctx    = canvas.getContext("2d", { willReadFrequently: true });
+
+  camInterval = setInterval(() => {
+    if(video.readyState < video.HAVE_ENOUGH_DATA) return;
     canvas.width  = video.videoWidth;
     canvas.height = video.videoHeight;
     ctx.drawImage(video, 0, 0);
-    const imageData = ctx.getImageData(0, 0, canvas.width, canvas.height);
-    const code = jsQR(imageData.data, imageData.width, imageData.height, {inversionAttempts:"dontInvert"});
-    if(code && code.data === QR_CODE_SECRET){
-      const now = Date.now();
-      if(now - lastScan < 3000) return; // éviter double-scan
-      lastScan = now;
-      handleQRScan();
-    }
-  }, 300);
+    try {
+      const imgData = ctx.getImageData(0, 0, canvas.width, canvas.height);
+      const code    = jsQR(imgData.data, imgData.width, imgData.height, { inversionAttempts: "dontInvert" });
+      if(code && code.data === QR_SECRET){
+        const now = Date.now();
+        if(now - lastScan < 3000) return;
+        lastScan = now;
+        handleQRScan();
+      }
+    } catch(e){ /* jsQR pas encore chargé */ }
+  }, 250);
 }
 
 function stopCamera(){
-  if(camInterval){ clearInterval(camInterval); camInterval=null; }
-  if(camStream){ camStream.getTracks().forEach(t=>t.stop()); camStream=null; }
+  if(camInterval){ clearInterval(camInterval); camInterval = null; }
+  if(camStream)  { camStream.getTracks().forEach(t => t.stop()); camStream = null; }
+  // Remettre le bouton scanner
+  const viewfinder = document.getElementById("cam-viewfinder");
+  const bigBtn     = document.getElementById("btn-scan-big");
+  if(viewfinder) viewfinder.style.display = "none";
+  if(bigBtn){
+    bigBtn.style.display = "";
+    bigBtn.disabled = false;
+    bigBtn.innerHTML = `<div style="font-size:52px;line-height:1;">📷</div><div style="color:#fff;font-size:17px;font-weight:700;">Scanner le QR code</div><div style="color:rgba(255,255,255,.45);font-size:12px;">Appuyez ici pour ouvrir la caméra</div>`;
+  }
 }
 
 function handleQRScan(){
-  if(currentUser === null){ showToast("Connectez-vous d'abord"); return; }
+  if(currentUser === null){ showScanMsg("Connectez-vous d'abord","err"); return; }
   const today = todayISO(), pt = ldPT();
-  if(!pt[currentUser]) pt[currentUser]={};
-  if(!pt[currentUser][today]) pt[currentUser][today]={};
+  if(!pt[currentUser])         pt[currentUser] = {};
+  if(!pt[currentUser][today])  pt[currentUser][today] = {};
   const entry = pt[currentUser][today];
+
   let type;
-  if(!entry.arrivee){ type="arrivee"; }
-  else if(!entry.depart){ type="depart"; }
+  if(!entry.arrivee)          type = "arrivee";
+  else if(!entry.depart)      type = "depart";
   else {
-    showScanResult("⏸ Déjà pointé aujourd'hui ("+entry.arrivee+" → "+entry.depart+")", false);
+    showScanMsg("Déjà pointé : "+entry.arrivee+" → "+entry.depart,"warn");
     return;
   }
   entry[type] = nowHM(); entry.locked = true;
   sv(SK.PT, pt);
+
+  stopCamera();
   showPointageSuccess(type, entry[type]);
   updateManualBtns();
   renderSemaine();
@@ -826,41 +896,37 @@ function handleQRScan(){
 
 function showPointageSuccess(type, heure){
   const emp = EMPLOYEES[currentUser];
-  const suc = document.getElementById("pt-success");
   document.getElementById("pt-success-icon").textContent  = type==="arrivee" ? "✅" : "👋";
   document.getElementById("pt-success-title").textContent = type==="arrivee" ? "Arrivée enregistrée !" : "Départ enregistré !";
   document.getElementById("pt-success-time").textContent  = heure;
   document.getElementById("pt-success-sub").textContent   = type==="arrivee"
     ? "Bonne journée "+emp.name.split(" ")[0]+" !"
     : "À demain "+emp.name.split(" ")[0]+" !";
+  const suc = document.getElementById("pt-success");
   suc.style.display = "block";
-  // Faire vibrer si possible
-  if(navigator.vibrate) navigator.vibrate([100,50,100]);
-  setTimeout(()=>{ suc.style.display="none"; }, 4000);
+  if(navigator.vibrate) navigator.vibrate([80,40,80]);
+  setTimeout(() => suc.style.display = "none", 5000);
 }
 
-function showScanResult(msg, ok){
-  const el = document.getElementById("scan-result");
+function showScanMsg(msg, type){
+  const el = document.getElementById("scan-msg");
   el.textContent = msg;
+  el.style.background = type==="err" ? "rgba(192,57,43,.5)" : type==="warn" ? "rgba(196,123,43,.4)" : "rgba(45,125,90,.4)";
   el.style.display = "block";
-  el.style.background = ok ? "rgba(45,125,90,.3)" : "rgba(192,57,43,.3)";
-  setTimeout(()=>{ el.style.display="none"; }, 3000);
+  setTimeout(() => el.style.display = "none", 3000);
 }
-
-// Arrêter la caméra quand on quitte l'onglet
-function onTabLeavePointage(){ stopCamera(); }
 
 /* ── Pointage manuel (secours) ── */
 function ptPointer(type){
   if(currentUser===null){ showToast("Connectez-vous d'abord"); return; }
-  const today=todayISO(), pt=ldPT();
-  if(!pt[currentUser]) pt[currentUser]={};
-  if(!pt[currentUser][today]) pt[currentUser][today]={};
+  const today = todayISO(), pt = ldPT();
+  if(!pt[currentUser])        pt[currentUser] = {};
+  if(!pt[currentUser][today]) pt[currentUser][today] = {};
   const e = pt[currentUser][today];
-  if(type==="arrivee"&&e.arrivee) return;
-  if(type==="depart"&&(!e.arrivee||e.depart)) return;
-  e[type]=nowHM(); e.locked=true;
-  sv(SK.PT,pt);
+  if(type==="arrivee" && e.arrivee) return;
+  if(type==="depart"  && (!e.arrivee || e.depart)) return;
+  e[type] = nowHM(); e.locked = true;
+  sv(SK.PT, pt);
   showPointageSuccess(type, e[type]);
   updateManualBtns();
   renderSemaine();
