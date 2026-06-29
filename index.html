@@ -1,0 +1,1163 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
+<title>Mon équipe — RMV Gestion</title>
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap');
+
+:root {
+  --bg: #F5F6F8;
+  --surface: #FFFFFF;
+  --navy: #1C2B4A;
+  --navy-light: #2E4270;
+  --slate: #4A5568;
+  --slate-light: #8896A8;
+  --jade: #2D7D5A;
+  --jade-light: #E8F5EF;
+  --amber: #C47B2B;
+  --amber-light: #FDF3E7;
+  --red: #C0392B;
+  --red-light: #FDECEA;
+  --border: #E3E7EE;
+  --border-strong: #C8D0DC;
+  --text: #1C2B4A;
+  --radius: 10px;
+  --radius-lg: 14px;
+}
+
+* { box-sizing: border-box; margin: 0; padding: 0; -webkit-tap-highlight-color: transparent; }
+
+body {
+  font-family: 'Inter', -apple-system, sans-serif;
+  background: var(--bg);
+  color: var(--text);
+  min-height: 100vh;
+  font-size: 14px;
+  line-height: 1.5;
+}
+
+/* ── HEADER ── */
+.app-header {
+  background: var(--navy);
+  padding: 0 1.25rem;
+  height: 56px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  position: sticky;
+  top: 0;
+  z-index: 100;
+}
+.app-logo {
+  color: #fff;
+  font-size: 15px;
+  font-weight: 600;
+  letter-spacing: -0.2px;
+}
+.app-clock {
+  font-size: 13px;
+  font-weight: 500;
+  color: rgba(255,255,255,0.55);
+  font-variant-numeric: tabular-nums;
+}
+
+/* ── TABS ── */
+.tabs-bar {
+  background: var(--surface);
+  border-bottom: 1px solid var(--border);
+  display: flex;
+  overflow-x: auto;
+  -ms-overflow-style: none;
+  scrollbar-width: none;
+  position: sticky;
+  top: 56px;
+  z-index: 99;
+}
+.tabs-bar::-webkit-scrollbar { display: none; }
+.tab-btn {
+  flex-shrink: 0;
+  padding: 0 20px;
+  height: 44px;
+  font-size: 13px;
+  font-weight: 500;
+  color: var(--slate);
+  background: none;
+  border: none;
+  border-bottom: 2px solid transparent;
+  cursor: pointer;
+  white-space: nowrap;
+  transition: color .15s, border-color .15s;
+}
+.tab-btn.active {
+  color: var(--navy);
+  border-bottom-color: var(--navy);
+}
+
+/* ── SECTIONS ── */
+.tab-section { display: none; padding: 1.25rem; }
+.tab-section.active { display: block; }
+
+/* ── CARDS ── */
+.card {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-lg);
+  padding: 1.125rem 1.25rem;
+  margin-bottom: 10px;
+}
+.card-label {
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: 1.2px;
+  text-transform: uppercase;
+  color: var(--slate-light);
+  margin-bottom: 12px;
+}
+
+/* ── AVATAR ── */
+.avatar {
+  width: 36px; height: 36px;
+  border-radius: 50%;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 12px; font-weight: 700;
+  flex-shrink: 0;
+}
+.av-0 { background: #EDE9FE; color: #4C1D95; }
+.av-1 { background: #D1FAE5; color: #064E3B; }
+.av-2 { background: #FEE2E2; color: #7F1D1D; }
+.av-3 { background: #DBEAFE; color: #1E3A8A; }
+
+/* ── BADGES ── */
+.badge {
+  display: inline-flex;
+  align-items: center;
+  padding: 2px 8px;
+  border-radius: 20px;
+  font-size: 11px;
+  font-weight: 600;
+  gap: 4px;
+}
+.b-present { background: var(--jade-light); color: var(--jade); }
+.b-parti   { background: #EDF2F7; color: var(--slate); }
+.b-absent  { background: #F7FAFC; color: #A0AEC0; }
+.b-supp    { background: var(--jade-light); color: var(--jade); }
+.b-recup   { background: var(--amber-light); color: var(--amber); }
+.b-en-attente { background: #EBF4FF; color: #2B6CB0; }
+.b-approuve   { background: var(--jade-light); color: var(--jade); }
+.b-refuse     { background: var(--red-light); color: var(--red); }
+
+/* ── GRILLE STATS ── */
+.stats-row {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 8px;
+  margin-bottom: 12px;
+}
+.stat-box {
+  background: var(--bg);
+  border-radius: var(--radius);
+  padding: 10px 12px;
+}
+.stat-box-label { font-size: 10px; color: var(--slate-light); margin-bottom: 3px; text-transform: uppercase; letter-spacing: .6px; }
+.stat-box-val {
+  font-size: 20px;
+  font-weight: 700;
+  font-variant-numeric: tabular-nums;
+  color: var(--text);
+  line-height: 1.1;
+}
+.stat-box-val.pos { color: var(--jade); }
+.stat-box-val.neg { color: var(--red); }
+.stat-box-val.neutral { color: var(--slate); }
+
+/* ── TIMELINE BAR ── */
+/* La signature de ce design : la barre de journée */
+.day-timeline {
+  margin: 10px 0 6px;
+  position: relative;
+}
+.day-timeline-track {
+  height: 3px;
+  background: var(--border);
+  border-radius: 3px;
+  position: relative;
+  overflow: hidden;
+}
+.day-timeline-fill {
+  height: 100%;
+  border-radius: 3px;
+  transition: width .4s ease;
+}
+.day-timeline-labels {
+  display: flex;
+  justify-content: space-between;
+  margin-top: 3px;
+}
+.day-timeline-labels span {
+  font-size: 10px;
+  color: var(--slate-light);
+  font-variant-numeric: tabular-nums;
+}
+
+/* ── LISTE EMPLOYÉS ── */
+.emp-row {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 12px 0;
+  border-bottom: 1px solid var(--border);
+}
+.emp-row:last-child { border-bottom: none; padding-bottom: 0; }
+.emp-row:first-child { padding-top: 0; }
+.emp-info { flex: 1; min-width: 0; }
+.emp-name { font-weight: 600; font-size: 14px; }
+.emp-detail { font-size: 12px; color: var(--slate); margin-top: 1px; }
+.emp-right { text-align: right; flex-shrink: 0; }
+.emp-solde {
+  font-size: 16px;
+  font-weight: 700;
+  font-variant-numeric: tabular-nums;
+}
+.emp-solde-label { font-size: 10px; color: var(--slate-light); }
+
+/* ── PRÉSENCE LIVE ── */
+.presence-card {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-lg);
+  padding: 14px 16px;
+  margin-bottom: 10px;
+}
+.presence-header {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-bottom: 10px;
+}
+.presence-name { font-weight: 600; font-size: 14px; flex: 1; }
+.presence-times { font-size: 12px; color: var(--slate); margin-top: 2px; }
+
+/* ── FORMULAIRE ── */
+.form-box {
+  background: var(--bg);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  padding: 14px;
+  margin-top: 12px;
+}
+.form-box-title {
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--slate);
+  margin-bottom: 12px;
+}
+.form-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+.form-group { display: flex; flex-direction: column; gap: 4px; }
+.form-group label { font-size: 11px; font-weight: 500; color: var(--slate); text-transform: uppercase; letter-spacing: .5px; }
+.form-group input,
+.form-group select,
+.form-group textarea {
+  font-size: 13px;
+  padding: 8px 10px;
+  border: 1px solid var(--border-strong);
+  border-radius: 7px;
+  background: var(--surface);
+  color: var(--text);
+  font-family: inherit;
+  outline: none;
+  transition: border-color .15s;
+}
+.form-group input:focus,
+.form-group select:focus,
+.form-group textarea:focus { border-color: var(--navy); }
+.form-group textarea { resize: vertical; min-height: 64px; }
+.form-full { grid-column: 1 / -1; }
+
+/* ── BOUTONS ── */
+.btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  padding: 9px 16px;
+  border-radius: 8px;
+  font-size: 13px;
+  font-weight: 600;
+  cursor: pointer;
+  border: 1px solid var(--border-strong);
+  background: var(--surface);
+  color: var(--text);
+  transition: all .15s;
+  font-family: inherit;
+}
+.btn:hover { background: var(--bg); }
+.btn-navy {
+  background: var(--navy);
+  color: white;
+  border-color: var(--navy);
+  width: 100%;
+  margin-top: 12px;
+  padding: 11px;
+}
+.btn-navy:hover { background: var(--navy-light); }
+.btn-sm { padding: 5px 10px; font-size: 11px; }
+.btn-approve { background: var(--jade-light); color: var(--jade); border-color: var(--jade-light); }
+.btn-refuse  { background: var(--red-light);  color: var(--red);  border-color: var(--red-light); }
+
+/* ── HISTORIQUE ROWS ── */
+.hist-row {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 8px 0;
+  border-bottom: 1px solid var(--border);
+  font-size: 13px;
+}
+.hist-row:last-child { border-bottom: none; }
+.hist-date { min-width: 48px; font-size: 11px; color: var(--slate-light); font-variant-numeric: tabular-nums; }
+.hist-desc { flex: 1; color: var(--text); }
+.hist-h { font-variant-numeric: tabular-nums; font-weight: 600; font-size: 13px; min-width: 44px; text-align: right; }
+
+/* ── MOIS NAV ── */
+.month-nav {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 14px;
+}
+.month-nav-title { font-weight: 600; font-size: 15px; }
+.month-nav-btns { display: flex; gap: 6px; }
+
+/* ── RÉCUP CARD ── */
+.recup-request {
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  padding: 12px 14px;
+  margin-bottom: 8px;
+  background: var(--surface);
+}
+.recup-request-header {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-bottom: 6px;
+}
+.recup-request-body { font-size: 12px; color: var(--slate); }
+.recup-actions { display: flex; gap: 6px; margin-top: 10px; }
+
+/* ── TABLE MENSUELLE ── */
+.month-table { width: 100%; border-collapse: collapse; font-size: 12px; }
+.month-table th {
+  text-align: left;
+  padding: 6px 8px;
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: .8px;
+  text-transform: uppercase;
+  color: var(--slate-light);
+  border-bottom: 1px solid var(--border);
+}
+.month-table td {
+  padding: 9px 8px;
+  border-bottom: 1px solid var(--border);
+  font-variant-numeric: tabular-nums;
+  vertical-align: middle;
+}
+.month-table tr:last-child td { border-bottom: none; }
+.month-table tr:hover td { background: var(--bg); }
+
+/* ── POINTAGE QR INLINE ── */
+.qr-section {
+  background: var(--navy);
+  border-radius: var(--radius-lg);
+  padding: 1.5rem;
+  text-align: center;
+  margin-bottom: 10px;
+}
+.qr-title { color: rgba(255,255,255,0.6); font-size: 11px; letter-spacing: 1.2px; text-transform: uppercase; margin-bottom: 8px; }
+.qr-time { color: white; font-size: 40px; font-weight: 300; font-variant-numeric: tabular-nums; letter-spacing: -1px; margin-bottom: 4px; }
+.qr-date { color: rgba(255,255,255,0.45); font-size: 13px; margin-bottom: 1.25rem; }
+.qr-emp-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
+.qr-emp-btn {
+  background: rgba(255,255,255,0.08);
+  border: 1px solid rgba(255,255,255,0.15);
+  border-radius: 10px;
+  padding: 10px;
+  color: white;
+  cursor: pointer;
+  text-align: center;
+  transition: background .15s;
+}
+.qr-emp-btn:hover { background: rgba(255,255,255,0.15); }
+.qr-emp-btn.selected { background: rgba(45,125,90,0.4); border-color: rgba(45,125,90,0.7); }
+.qr-emp-name { font-size: 13px; font-weight: 600; }
+.qr-emp-status { font-size: 10px; color: rgba(255,255,255,0.5); margin-top: 2px; }
+.qr-actions { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; margin-top: 12px; }
+.qr-btn-arrive {
+  padding: 12px;
+  background: var(--jade);
+  color: white;
+  border: none;
+  border-radius: 10px;
+  font-size: 13px;
+  font-weight: 600;
+  cursor: pointer;
+  font-family: inherit;
+}
+.qr-btn-depart {
+  padding: 12px;
+  background: rgba(255,255,255,0.12);
+  color: white;
+  border: 1px solid rgba(255,255,255,0.2);
+  border-radius: 10px;
+  font-size: 13px;
+  font-weight: 600;
+  cursor: pointer;
+  font-family: inherit;
+}
+.qr-btn-arrive:disabled, .qr-btn-depart:disabled { opacity: 0.3; cursor: not-allowed; }
+.qr-lock { color: rgba(255,255,255,0.3); font-size: 11px; margin-top: 10px; }
+
+/* ── SELECTOR ROW ── */
+.selector-row {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-bottom: 1rem;
+}
+.selector-row span { font-size: 12px; color: var(--slate); font-weight: 500; text-transform: uppercase; letter-spacing: .5px; }
+.selector-row select { font-size: 13px; padding: 7px 10px; border: 1px solid var(--border-strong); border-radius: 8px; background: var(--surface); color: var(--text); font-family: inherit; outline: none; max-width: 200px; }
+
+/* ── TOAST ── */
+.toast {
+  position: fixed;
+  bottom: 1.5rem;
+  left: 50%;
+  transform: translateX(-50%) translateY(80px);
+  background: var(--navy);
+  color: white;
+  padding: 10px 20px;
+  border-radius: 10px;
+  font-size: 13px;
+  font-weight: 500;
+  transition: transform .25s ease;
+  z-index: 999;
+  box-shadow: 0 8px 32px rgba(0,0,0,0.25);
+  white-space: nowrap;
+}
+.toast.show { transform: translateX(-50%) translateY(0); }
+.toast.ok { background: var(--jade); }
+
+/* ── MODAL ── */
+.modal-overlay {
+  display: none;
+  position: fixed; inset: 0;
+  background: rgba(0,0,0,0.45);
+  z-index: 200;
+  align-items: flex-end;
+  justify-content: center;
+  padding: 0;
+}
+.modal-overlay.open { display: flex; }
+.modal {
+  background: var(--surface);
+  border-radius: 18px 18px 0 0;
+  padding: 1.5rem 1.25rem 2rem;
+  width: 100%;
+  max-width: 480px;
+  box-shadow: 0 -8px 40px rgba(0,0,0,0.2);
+}
+.modal-title { font-size: 16px; font-weight: 700; margin-bottom: 6px; }
+.modal-sub { font-size: 13px; color: var(--slate); margin-bottom: 1.25rem; }
+.modal-btns { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; margin-top: 12px; }
+
+/* ── EMPTY STATE ── */
+.empty { text-align: center; padding: 2rem 1rem; color: var(--slate-light); font-size: 13px; }
+.empty-icon { font-size: 28px; margin-bottom: 8px; }
+</style>
+</head>
+<body>
+
+<header class="app-header">
+  <div class="app-logo">RMV Gestion · Équipe</div>
+  <div class="app-clock" id="live-clock">—</div>
+</header>
+
+<nav class="tabs-bar">
+  <button class="tab-btn active" onclick="switchTab('equipe',this)">Équipe</button>
+  <button class="tab-btn" onclick="switchTab('mois',this)">Mon mois</button>
+  <button class="tab-btn" onclick="switchTab('recup',this)">Récupérations</button>
+  <button class="tab-btn" onclick="switchTab('pointage',this)">Pointage</button>
+  <button class="tab-btn" onclick="openAdminModal()">Admin</button>
+</nav>
+
+<!-- ══ ÉQUIPE ══ -->
+<section id="equipe" class="tab-section active">
+
+  <!-- Présence live -->
+  <div class="card">
+    <div class="card-label">Présence aujourd'hui</div>
+    <div id="presence-live"></div>
+  </div>
+
+  <!-- Soldes d'équipe -->
+  <div class="card">
+    <div class="card-label">Soldes heures supplémentaires</div>
+    <div id="soldes-equipe"></div>
+  </div>
+
+</section>
+
+<!-- ══ MON MOIS ══ -->
+<section id="mois" class="tab-section">
+  <div class="selector-row">
+    <span>Employé</span>
+    <select id="mois-emp" onchange="renderMois()">
+      <option value="0">Alice Martin</option>
+      <option value="1">Bruno Leblanc</option>
+      <option value="2">Carla Dupont</option>
+      <option value="3">David Noël</option>
+    </select>
+  </div>
+
+  <div class="month-nav">
+    <button class="btn btn-sm" onclick="changeMonth(-1)">← Précédent</button>
+    <div class="month-nav-title" id="month-title">—</div>
+    <button class="btn btn-sm" onclick="changeMonth(1)">Suivant →</button>
+  </div>
+
+  <div class="card">
+    <div class="stats-row" id="mois-stats"></div>
+    <div class="card-label" style="margin-top:4px;">Détail des jours</div>
+    <div id="mois-table"></div>
+  </div>
+
+  <div class="card">
+    <div class="card-label">Saisir des heures hors bureau</div>
+    <div class="form-box" style="margin-top:0; border:none; padding:0; background:transparent;">
+      <div class="form-grid">
+        <div class="form-group">
+          <label>Date</label>
+          <input type="date" id="hs-date" />
+        </div>
+        <div class="form-group">
+          <label>Type</label>
+          <select id="hs-type">
+            <option value="supp">Heures supp</option>
+            <option value="recup">Récupération</option>
+          </select>
+        </div>
+        <div class="form-group">
+          <label>Durée (h)</label>
+          <input type="number" id="hs-h" min="0.5" max="12" step="0.5" value="1" />
+        </div>
+        <div class="form-group">
+          <label>Description</label>
+          <input type="text" id="hs-desc" placeholder="Ex : astreinte téléphonique" />
+        </div>
+      </div>
+      <button class="btn btn-navy" onclick="addHsuppEntry()">Enregistrer ces heures</button>
+    </div>
+  </div>
+</section>
+
+<!-- ══ RÉCUPÉRATIONS ══ -->
+<section id="recup" class="tab-section">
+
+  <!-- Demander une récup -->
+  <div class="card">
+    <div class="card-label">Demander une récupération</div>
+    <div class="form-grid">
+      <div class="form-group">
+        <label>Je suis</label>
+        <select id="recup-emp">
+          <option value="0">Alice Martin</option>
+          <option value="1">Bruno Leblanc</option>
+          <option value="2">Carla Dupont</option>
+          <option value="3">David Noël</option>
+        </select>
+      </div>
+      <div class="form-group">
+        <label>Date souhaitée</label>
+        <input type="date" id="recup-date" />
+      </div>
+      <div class="form-group">
+        <label>Durée (h)</label>
+        <input type="number" id="recup-h" min="0.5" max="8" step="0.5" value="2" />
+      </div>
+      <div class="form-group">
+        <label>Motif</label>
+        <input type="text" id="recup-motif" placeholder="Optionnel" />
+      </div>
+    </div>
+    <button class="btn btn-navy" onclick="demanderRecup()">Envoyer la demande</button>
+  </div>
+
+  <!-- Demandes en cours — visibles par tous -->
+  <div class="card">
+    <div class="card-label">Demandes en cours — visibles par tous</div>
+    <div id="recup-list"></div>
+  </div>
+
+</section>
+
+<!-- ══ POINTAGE ══ -->
+<section id="pointage" class="tab-section">
+  <div class="qr-section">
+    <div class="qr-title">Pointage du jour</div>
+    <div class="qr-time" id="qr-clock">—</div>
+    <div class="qr-date" id="qr-date">—</div>
+    <div class="qr-emp-grid" id="qr-emp-grid"></div>
+    <div class="qr-actions">
+      <button class="qr-btn-arrive" id="qr-btn-arrive" onclick="qrPointer('arrivee')" disabled>✓ Arrivée</button>
+      <button class="qr-btn-depart" id="qr-btn-depart" onclick="qrPointer('depart')" disabled>↪ Départ</button>
+    </div>
+    <div class="qr-lock">🔒 Horodatage automatique · non modifiable</div>
+  </div>
+
+  <!-- Tableau de présence de la semaine visible par tous -->
+  <div class="card">
+    <div class="card-label">Semaine en cours — vue équipe</div>
+    <div id="semaine-table"></div>
+  </div>
+</section>
+
+<!-- ══ MODAL ADMIN ══ -->
+<div class="modal-overlay" id="admin-modal">
+  <div class="modal">
+    <div class="modal-title">Accès gérant</div>
+    <div class="modal-sub">Entrez votre code pour modifier ou supprimer des entrées.</div>
+    <div class="form-group">
+      <label>Code</label>
+      <input type="password" id="admin-code-input" placeholder="••••" onkeydown="if(event.key==='Enter')checkAdmin()" />
+    </div>
+    <div class="modal-btns">
+      <button class="btn" onclick="closeAdminModal()">Annuler</button>
+      <button class="btn btn-navy" style="margin-top:0;" onclick="checkAdmin()">Valider</button>
+    </div>
+  </div>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script>
+/* ══════════════════════════════════════
+   CONFIG
+══════════════════════════════════════ */
+const ADMIN_CODE    = "1234";
+const HORAIRE_STD   = 8;
+const STORE_PT      = "rmv_pt_v2";
+const STORE_HS      = "rmv_hs_v2";
+const STORE_RECUP   = "rmv_recup_v2";
+
+const EMPLOYEES = [
+  { name:"Alice Martin",  role:"Comptable",    initials:"AM" },
+  { name:"Bruno Leblanc", role:"Gestionnaire", initials:"BL" },
+  { name:"Carla Dupont",  role:"Assistante",   initials:"CD" },
+  { name:"David Noël",    role:"Technicien",   initials:"DN" },
+];
+
+let adminMode   = false;
+let currentMonth = new Date().getMonth();
+let currentYear  = new Date().getFullYear();
+let qrSelected   = null;
+
+/* ══════════════════════════════════════
+   STORAGE
+══════════════════════════════════════ */
+function loadPT()    { try { return JSON.parse(localStorage.getItem(STORE_PT))    || {}; }      catch { return {}; } }
+function loadHS()    { try { return JSON.parse(localStorage.getItem(STORE_HS))    || [[],[],[],[]]; } catch { return [[],[],[],[]]; } }
+function loadRecup() { try { return JSON.parse(localStorage.getItem(STORE_RECUP)) || []; }      catch { return []; } }
+function savePT(d)    { localStorage.setItem(STORE_PT,    JSON.stringify(d)); }
+function saveHS(d)    { localStorage.setItem(STORE_HS,    JSON.stringify(d)); }
+function saveRecup(d) { localStorage.setItem(STORE_RECUP, JSON.stringify(d)); }
+
+function initDemo() {
+  if (Object.keys(loadPT()).length > 0) return;
+  const pt = {
+    0: {
+      "2026-06-23":{ arrivee:"08:45", depart:"17:30", locked:true },
+      "2026-06-24":{ arrivee:"09:00", depart:"18:50", locked:true },
+      "2026-06-25":{ arrivee:"08:30", depart:"17:00", locked:true },
+      "2026-06-26":{ arrivee:"09:00", depart:"17:00", locked:true },
+      "2026-06-27":{ arrivee:"08:50", locked:true },
+    },
+    1: {
+      "2026-06-23":{ arrivee:"09:15", depart:"18:00", locked:true },
+      "2026-06-24":{ arrivee:"09:00", depart:"17:10", locked:true },
+      "2026-06-25":{ arrivee:"08:55", depart:"17:00", locked:true },
+      "2026-06-26":{ arrivee:"09:05", depart:"19:30", locked:true },
+      "2026-06-27":{ arrivee:"09:30", locked:true },
+    },
+    2: {
+      "2026-06-23":{ arrivee:"08:55", depart:"18:30", locked:true },
+      "2026-06-24":{ arrivee:"09:00", depart:"17:00", locked:true },
+      "2026-06-25":{ arrivee:"09:00", depart:"17:00", locked:true },
+      "2026-06-26":{ arrivee:"09:00", depart:"17:00", locked:true },
+      "2026-06-27":{ arrivee:"09:00", locked:true },
+    },
+    3: {
+      "2026-06-23":{ arrivee:"08:00", depart:"19:30", locked:true },
+      "2026-06-24":{ arrivee:"09:00", depart:"17:00", locked:true },
+      "2026-06-25":{ arrivee:"09:00", depart:"17:00", locked:true },
+      "2026-06-26":{ arrivee:"09:10", depart:"17:00", locked:true },
+    },
+  };
+  savePT(pt);
+  const hs = [
+    [{ date:"2026-06-09", desc:"Réunion budget prolongée", h:2,   type:"supp" }],
+    [{ date:"2026-06-17", desc:"Urgence locataire",        h:1.5, type:"supp" }],
+    [{ date:"2026-06-12", desc:"Dossier sinistre",         h:2.5, type:"supp" }],
+    [{ date:"2026-06-13", desc:"Astreinte weekend",        h:3,   type:"supp" }],
+  ];
+  saveHS(hs);
+  const recup = [
+    { id:1, emp:1, date:"2026-07-04", h:2,   motif:"Rendez-vous médical", status:"en-attente", ts: Date.now()-86400000 },
+    { id:2, emp:3, date:"2026-07-07", h:3,   motif:"",                    status:"approuve",   ts: Date.now()-172800000 },
+    { id:3, emp:0, date:"2026-07-10", h:1.5, motif:"Démarches admin",     status:"en-attente", ts: Date.now()-3600000 },
+  ];
+  saveRecup(recup);
+}
+initDemo();
+
+/* ══════════════════════════════════════
+   UTILITAIRES
+══════════════════════════════════════ */
+function t2h(t) {
+  if (!t) return null;
+  const [h,m] = t.split(":").map(Number);
+  return h + m/60;
+}
+function hworked(a, d) {
+  if (!a||!d) return null;
+  return Math.max(0, t2h(d)-t2h(a));
+}
+function fh(h, forceSign=false) {
+  if (h===null||isNaN(h)) return "—";
+  const sign = h<0 ? "-" : (forceSign ? "+" : "");
+  const abs = Math.abs(h);
+  const hrs = Math.floor(abs);
+  const mins = Math.round((abs-hrs)*60);
+  return sign + hrs + "h" + (mins ? String(mins).padStart(2,"0") : "");
+}
+function fdate(iso) {
+  if (!iso) return "—";
+  const [,m,d] = iso.split("-");
+  return d+"/"+m;
+}
+function fdateFull(iso) {
+  if (!iso) return "—";
+  return new Date(iso+"T12:00:00").toLocaleDateString("fr-FR",{weekday:"short",day:"numeric",month:"short"});
+}
+function todayISO() { return new Date().toISOString().slice(0,10); }
+function nowStr()   { return new Date().toLocaleTimeString("fr-FR",{hour:"2-digit",minute:"2-digit"}); }
+
+function totalSuppAuto(idx) {
+  const pt = loadPT()[idx] || {};
+  return Object.values(pt).reduce((s,p)=>{
+    const w = hworked(p.arrivee, p.depart);
+    return w!==null ? s+(w-HORAIRE_STD) : s;
+  },0);
+}
+function totalSuppManuel(idx) {
+  return (loadHS()[idx]||[]).reduce((s,e)=>s+e.h,0);
+}
+function totalSolde(idx) { return totalSuppAuto(idx)+totalSuppManuel(idx); }
+
+/* ══════════════════════════════════════
+   HORLOGE
+══════════════════════════════════════ */
+function tickClock() {
+  const now = new Date();
+  const t = now.toLocaleTimeString("fr-FR",{hour:"2-digit",minute:"2-digit",second:"2-digit"});
+  const el = document.getElementById("live-clock");
+  if(el) el.textContent = t;
+  const qEl = document.getElementById("qr-clock");
+  if(qEl) qEl.textContent = now.toLocaleTimeString("fr-FR",{hour:"2-digit",minute:"2-digit",second:"2-digit"});
+  const dEl = document.getElementById("qr-date");
+  if(dEl) dEl.textContent = now.toLocaleDateString("fr-FR",{weekday:"long",day:"numeric",month:"long"});
+}
+setInterval(tickClock,1000);
+tickClock();
+
+/* ══════════════════════════════════════
+   ONGLET ÉQUIPE
+══════════════════════════════════════ */
+function renderEquipe() {
+  const pt = loadPT();
+  const today = todayISO();
+
+  // Présence live avec timeline
+  const presenceHTML = EMPLOYEES.map((emp,i)=>{
+    const p = pt[i]?.[today] || {};
+    const w = hworked(p.arrivee, p.depart);
+    const inBureau = p.arrivee && !p.depart;
+    const parti    = p.arrivee && p.depart;
+    const absent   = !p.arrivee;
+
+    const statusBadge = absent
+      ? `<span class="badge b-absent">—</span>`
+      : parti
+        ? `<span class="badge b-parti">Sorti ${p.depart}</span>`
+        : `<span class="badge b-present">Présent</span>`;
+
+    // Timeline de journée : de 8h à 20h = 12h de fenêtre
+    let tlHTML = "";
+    if (p.arrivee) {
+      const start = 8, end = 20, span = end - start;
+      const arrH = Math.max(t2h(p.arrivee), start);
+      const depH = p.depart ? Math.min(t2h(p.depart), end) : Math.min(t2h(nowStr())||0, end);
+      const left  = Math.max(0, ((arrH-start)/span)*100);
+      const width = Math.max(0, ((depH-arrH)/span)*100);
+      const colors = ["#7C6AE8","#2D7D5A","#C47B2B","#2D62BD"];
+      tlHTML = `
+        <div class="day-timeline">
+          <div class="day-timeline-track">
+            <div class="day-timeline-fill" style="margin-left:${left}%; width:${width}%; background:${colors[i]};"></div>
+          </div>
+          <div class="day-timeline-labels">
+            <span>8h</span>
+            ${p.arrivee?`<span style="color:${colors[i]};">${p.arrivee}${p.depart?' → '+p.depart:' →'}</span>`:''}
+            <span>20h</span>
+          </div>
+        </div>`;
+    }
+
+    const detail = absent ? "Non pointé" : parti ? `${w!==null?w.toFixed(1)+"h travaillées":""}` : `Arrivée à ${p.arrivee}`;
+
+    return `<div class="presence-card">
+      <div class="presence-header">
+        <div class="avatar av-${i}">${emp.initials}</div>
+        <div style="flex:1;">
+          <div class="presence-name">${emp.name}</div>
+          <div class="presence-times">${detail}</div>
+        </div>
+        ${statusBadge}
+      </div>
+      ${tlHTML}
+    </div>`;
+  }).join("");
+  document.getElementById("presence-live").innerHTML = presenceHTML;
+
+  // Soldes
+  const soldesHTML = EMPLOYEES.map((emp,i)=>{
+    const solde = totalSolde(i);
+    const auto  = totalSuppAuto(i);
+    const manuel = totalSuppManuel(i);
+    return `<div class="emp-row">
+      <div class="avatar av-${i}">${emp.initials}</div>
+      <div class="emp-info">
+        <div class="emp-name">${emp.name}</div>
+        <div class="emp-detail">Pointage ${fh(auto,true)} · Manuel ${fh(manuel,true)}</div>
+      </div>
+      <div class="emp-right">
+        <div class="emp-solde" style="color:${solde>0?'var(--jade)':solde<0?'var(--red)':'var(--slate)'};">${fh(solde,true)}</div>
+        <div class="emp-solde-label">solde</div>
+      </div>
+    </div>`;
+  }).join("");
+  document.getElementById("soldes-equipe").innerHTML = soldesHTML;
+}
+
+/* ══════════════════════════════════════
+   ONGLET MON MOIS
+══════════════════════════════════════ */
+let monthViewIdx = 0;
+function renderMois() {
+  monthViewIdx = parseInt(document.getElementById("mois-emp").value);
+  const emp = EMPLOYEES[monthViewIdx];
+  const pt  = loadPT()[monthViewIdx] || {};
+  const hs  = loadHS()[monthViewIdx] || [];
+
+  // Titre du mois
+  const monthNames = ["Janvier","Février","Mars","Avril","Mai","Juin","Juillet","Août","Septembre","Octobre","Novembre","Décembre"];
+  document.getElementById("month-title").textContent = monthNames[currentMonth]+" "+currentYear;
+
+  // Filtrer entrées du mois
+  const prefix = `${currentYear}-${String(currentMonth+1).padStart(2,"0")}`;
+  const ptMois  = Object.entries(pt).filter(([k])=>k.startsWith(prefix));
+  const hsMois  = hs.filter(e=>e.date.startsWith(prefix));
+
+  // Stats
+  const totalH = ptMois.reduce((s,[,p])=>{ const w=hworked(p.arrivee,p.depart); return w!==null?s+w:s; },0);
+  const joursTravailles = ptMois.filter(([,p])=>p.arrivee).length;
+  const suppMois = ptMois.reduce((s,[,p])=>{ const w=hworked(p.arrivee,p.depart); return w!==null?s+(w-HORAIRE_STD):s; },0)
+                 + hsMois.reduce((s,e)=>s+e.h,0);
+
+  document.getElementById("mois-stats").innerHTML = `
+    <div class="stat-box"><div class="stat-box-label">Jours pointés</div><div class="stat-box-val neutral">${joursTravailles}j</div></div>
+    <div class="stat-box"><div class="stat-box-label">Heures totales</div><div class="stat-box-val neutral">${totalH.toFixed(1)}h</div></div>
+    <div class="stat-box"><div class="stat-box-label">Solde supp</div><div class="stat-box-val ${suppMois>0?'pos':suppMois<0?'neg':'neutral'}">${fh(suppMois,true)}</div></div>`;
+
+  // Table des jours
+  const rows = [...ptMois].sort((a,b)=>b[0].localeCompare(a[0])).map(([date,p])=>{
+    const w = hworked(p.arrivee,p.depart);
+    const delta = w!==null ? w-HORAIRE_STD : null;
+    return `<tr>
+      <td>${fdateFull(date)}</td>
+      <td>${p.arrivee||"—"}</td>
+      <td>${p.depart||"…"}</td>
+      <td style="font-weight:600;">${w!==null?w.toFixed(1)+"h":"—"}</td>
+      <td style="color:${delta===null?'var(--slate)':delta>0.1?'var(--jade)':delta<-0.1?'var(--red)':'var(--slate)'}; font-weight:600;">${delta!==null?fh(delta,true):"—"}</td>
+    </tr>`;
+  }).join("");
+
+  const hsRows = hsMois.map(e=>`<tr>
+    <td>${fdateFull(e.date)}</td>
+    <td colspan="3" style="color:var(--slate);">${e.desc}</td>
+    <td style="color:${e.h>0?'var(--jade)':'var(--amber)'}; font-weight:600;">${fh(e.h,true)} <span style="font-size:10px; opacity:.6;">(manuel)</span></td>
+  </tr>`).join("");
+
+  document.getElementById("mois-table").innerHTML = rows||hsRows
+    ? `<table class="month-table">
+        <thead><tr><th>Date</th><th>Arrivée</th><th>Départ</th><th>Durée</th><th>Écart</th></tr></thead>
+        <tbody>${rows}${hsRows}</tbody>
+       </table>`
+    : `<div class="empty"><div class="empty-icon">📅</div>Aucune donnée pour ce mois.</div>`;
+}
+
+function changeMonth(dir) {
+  currentMonth += dir;
+  if (currentMonth > 11) { currentMonth = 0; currentYear++; }
+  if (currentMonth < 0)  { currentMonth = 11; currentYear--; }
+  renderMois();
+}
+
+function addHsuppEntry() {
+  const idx   = parseInt(document.getElementById("mois-emp").value);
+  const date  = document.getElementById("hs-date").value || todayISO();
+  const type  = document.getElementById("hs-type").value;
+  const h     = parseFloat(document.getElementById("hs-h").value);
+  const desc  = document.getElementById("hs-desc").value.trim();
+  if (!desc||isNaN(h)||h<=0) { showToast("Remplissez tous les champs"); return; }
+  const sign  = type==="recup" ? -h : h;
+  const hs    = loadHS();
+  hs[idx].push({ date, desc, h:sign, type });
+  saveHS(hs);
+  renderMois();
+  renderEquipe();
+  showToast("Heures enregistrées", "ok");
+}
+
+/* ══════════════════════════════════════
+   ONGLET RÉCUPÉRATIONS
+══════════════════════════════════════ */
+function renderRecup() {
+  const list  = loadRecup();
+  const statusLabels = { "en-attente":"En attente", "approuve":"Approuvée", "refuse":"Refusée" };
+  const statusClass  = { "en-attente":"b-en-attente", "approuve":"b-approuve", "refuse":"b-refuse" };
+
+  const html = list.length === 0
+    ? `<div class="empty"><div class="empty-icon">✅</div>Aucune demande en cours.</div>`
+    : list.sort((a,b)=>b.ts-a.ts).map(r=>`
+        <div class="recup-request">
+          <div class="recup-request-header">
+            <div class="avatar av-${r.emp}">${EMPLOYEES[r.emp].initials}</div>
+            <div style="flex:1;">
+              <div style="font-weight:600; font-size:13px;">${EMPLOYEES[r.emp].name}</div>
+              <div style="font-size:12px; color:var(--slate);">${fdateFull(r.date)} · ${r.h}h${r.motif?' · '+r.motif:''}</div>
+            </div>
+            <span class="badge ${statusClass[r.status]}">${statusLabels[r.status]}</span>
+          </div>
+          ${adminMode && r.status==="en-attente" ? `
+            <div class="recup-actions">
+              <button class="btn btn-approve btn-sm" onclick="repondreRecup(${r.id},'approuve')">✓ Approuver</button>
+              <button class="btn btn-refuse btn-sm"  onclick="repondreRecup(${r.id},'refuse')">✕ Refuser</button>
+            </div>` : ""}
+        </div>`).join("");
+
+  document.getElementById("recup-list").innerHTML = html;
+}
+
+function demanderRecup() {
+  const emp   = parseInt(document.getElementById("recup-emp").value);
+  const date  = document.getElementById("recup-date").value;
+  const h     = parseFloat(document.getElementById("recup-h").value);
+  const motif = document.getElementById("recup-motif").value.trim();
+  if (!date||isNaN(h)||h<=0) { showToast("Date et durée requises"); return; }
+  const list = loadRecup();
+  list.push({ id: Date.now(), emp, date, h, motif, status:"en-attente", ts: Date.now() });
+  saveRecup(list);
+  document.getElementById("recup-date").value = "";
+  document.getElementById("recup-motif").value = "";
+  renderRecup();
+  showToast("Demande envoyée", "ok");
+}
+
+function repondreRecup(id, status) {
+  if (!adminMode) return;
+  const list = loadRecup();
+  const r = list.find(x=>x.id===id);
+  if (!r) return;
+  r.status = status;
+  if (status==="approuve") {
+    // On déduit du solde
+    const hs = loadHS();
+    hs[r.emp].push({ date: r.date, desc:`Récupération approuvée`, h:-r.h, type:"recup" });
+    saveHS(hs);
+  }
+  saveRecup(list);
+  renderRecup();
+  renderEquipe();
+  showToast(status==="approuve" ? "Récupération approuvée" : "Demande refusée", "ok");
+}
+
+/* ══════════════════════════════════════
+   ONGLET POINTAGE (QR intégré)
+══════════════════════════════════════ */
+function renderPointage() {
+  const today = todayISO();
+  const pt    = loadPT();
+
+  // Grille employés
+  const grid = EMPLOYEES.map((emp,i)=>{
+    const p = pt[i]?.[today]||{};
+    const inBureau = p.arrivee && !p.depart;
+    const parti    = p.arrivee && p.depart;
+    const status   = parti ? `Sorti ${p.depart}` : inBureau ? `Arrivé ${p.arrivee}` : "Non pointé";
+    return `<div class="qr-emp-btn ${qrSelected===i?'selected':''}" onclick="selectQrEmp(${i})">
+      <div class="qr-emp-name">${emp.name.split(" ")[0]}</div>
+      <div class="qr-emp-status">${status}</div>
+    </div>`;
+  }).join("");
+  document.getElementById("qr-emp-grid").innerHTML = grid;
+
+  // Boutons
+  const sel = qrSelected;
+  const pSel = sel!==null ? (pt[sel]?.[today]||{}) : {};
+  const canArrive = sel!==null && !pSel.arrivee;
+  const canDepart = sel!==null && pSel.arrivee && !pSel.depart;
+  document.getElementById("qr-btn-arrive").disabled = !canArrive;
+  document.getElementById("qr-btn-depart").disabled = !canDepart;
+
+  // Semaine
+  renderSemaineTable();
+}
+
+function selectQrEmp(i) {
+  qrSelected = i;
+  renderPointage();
+}
+
+function qrPointer(type) {
+  if (qrSelected===null) return;
+  const today = todayISO();
+  const pt    = loadPT();
+  if (!pt[qrSelected]) pt[qrSelected]={};
+  if (!pt[qrSelected][today]) pt[qrSelected][today]={};
+  const now = nowStr();
+  const entry = pt[qrSelected][today];
+  if (type==="arrivee") {
+    if (entry.arrivee) return;
+    entry.arrivee = now;
+    entry.locked  = true;
+    showToast("Arrivée enregistrée à "+now, "ok");
+  } else {
+    if (!entry.arrivee||entry.depart) return;
+    entry.depart = now;
+    entry.locked = true;
+    showToast("Départ enregistré à "+now, "ok");
+  }
+  savePT(pt);
+  renderPointage();
+  renderEquipe();
+}
+
+function renderSemaineTable() {
+  const pt = loadPT();
+  // 5 derniers jours avec données
+  const allDates = [...new Set(
+    Object.values(pt).flatMap(empPt => Object.keys(empPt))
+  )].sort().slice(-7).reverse();
+
+  if (!allDates.length) {
+    document.getElementById("semaine-table").innerHTML = `<div class="empty"><div class="empty-icon">📋</div>Aucun pointage cette semaine.</div>`;
+    return;
+  }
+
+  const thCols = EMPLOYEES.map((e,i)=>`<th style="text-align:center;"><div class="avatar av-${i}" style="margin:0 auto 4px;">${e.initials}</div></th>`).join("");
+  const rows = allDates.map(date=>{
+    const cols = EMPLOYEES.map((_,i)=>{
+      const p = pt[i]?.[date]||{};
+      if (!p.arrivee) return `<td style="text-align:center;color:var(--slate-light);font-size:12px;">—</td>`;
+      const w = hworked(p.arrivee, p.depart);
+      const d = w!==null?w-HORAIRE_STD:null;
+      const col = d===null?'var(--slate)':d>0.1?'var(--jade)':d<-0.1?'var(--red)':'var(--slate)';
+      return `<td style="text-align:center;font-size:11px;font-variant-numeric:tabular-nums;">
+        <div>${p.arrivee}</div>
+        <div style="color:var(--slate-light);">${p.depart||"…"}</div>
+        ${w!==null?`<div style="font-weight:700;color:${col};">${w.toFixed(1)}h</div>`:""}
+      </td>`;
+    }).join("");
+    return `<tr><td style="font-size:11px;color:var(--slate-light);white-space:nowrap;">${fdateFull(date)}</td>${cols}</tr>`;
+  }).join("");
+
+  document.getElementById("semaine-table").innerHTML = `
+    <table class="month-table">
+      <thead><tr><th></th>${thCols}</tr></thead>
+      <tbody>${rows}</tbody>
+    </table>`;
+}
+
+/* ══════════════════════════════════════
+   ADMIN
+══════════════════════════════════════ */
+function openAdminModal() {
+  if (adminMode) {
+    adminMode = false;
+    showToast("Mode admin désactivé");
+    renderAll();
+    return;
+  }
+  document.getElementById("admin-modal").classList.add("open");
+  setTimeout(()=>document.getElementById("admin-code-input").focus(),100);
+}
+function closeAdminModal() {
+  document.getElementById("admin-modal").classList.remove("open");
+  document.getElementById("admin-code-input").value="";
+}
+function checkAdmin() {
+  if (document.getElementById("admin-code-input").value===ADMIN_CODE) {
+    adminMode = true;
+    closeAdminModal();
+    showToast("Mode admin activé — vous pouvez approuver les récupérations", "ok");
+    renderAll();
+  } else {
+    showToast("Code incorrect");
+  }
+}
+
+/* ══════════════════════════════════════
+   NAVIGATION
+══════════════════════════════════════ */
+function switchTab(tab, el) {
+  document.querySelectorAll(".tab-btn").forEach(b=>b.classList.remove("active"));
+  document.querySelectorAll(".tab-section").forEach(s=>s.classList.remove("active"));
+  el.classList.add("active");
+  document.getElementById(tab).classList.add("active");
+  if (tab==="equipe")   renderEquipe();
+  if (tab==="mois")     renderMois();
+  if (tab==="recup")    renderRecup();
+  if (tab==="pointage") renderPointage();
+}
+
+function renderAll() {
+  renderEquipe();
+  renderRecup();
+}
+
+function showToast(msg, type) {
+  const t = document.getElementById("toast");
+  t.textContent = msg;
+  t.className   = "toast"+(type?" "+type:"");
+  t.classList.add("show");
+  setTimeout(()=>t.classList.remove("show"), 2800);
+}
+
+/* Init */
+renderEquipe();
+</script>
+</body>
+</html>
