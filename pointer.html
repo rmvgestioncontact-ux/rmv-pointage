@@ -6,92 +6,131 @@
 <title>Pointage — RMV Gestion</title>
 <style>
 *{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent;}
-body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;background:#1C2B4A;min-height:100vh;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:1.5rem;user-select:none;}
-.logo{color:rgba(255,255,255,.4);font-size:11px;letter-spacing:2px;text-transform:uppercase;margin-bottom:1.5rem;}
-.clock{color:#fff;font-size:58px;font-weight:200;font-variant-numeric:tabular-nums;letter-spacing:-2px;line-height:1;}
-.datestr{color:rgba(255,255,255,.4);font-size:14px;margin-top:6px;margin-bottom:2.5rem;text-transform:capitalize;}
-.card{background:#fff;border-radius:20px;padding:1.75rem 1.5rem;width:100%;max-width:380px;box-shadow:0 24px 64px rgba(0,0,0,.35);}
-.card-title{font-size:11px;font-weight:700;letter-spacing:1.2px;text-transform:uppercase;color:#8896A8;margin-bottom:1.25rem;}
+body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;background:#1C2B4A;min-height:100vh;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:1.5rem;}
+
+.logo{color:rgba(255,255,255,.35);font-size:11px;letter-spacing:2px;text-transform:uppercase;margin-bottom:1rem;text-align:center;}
+.clock{color:#fff;font-size:52px;font-weight:200;font-variant-numeric:tabular-nums;letter-spacing:-2px;text-align:center;line-height:1;}
+.datestr{color:rgba(255,255,255,.35);font-size:13px;margin-top:6px;margin-bottom:2rem;text-align:center;text-transform:capitalize;}
+
+/* ── ÉTAPE 1 : choisir son prénom ── */
+.card{background:#fff;border-radius:20px;padding:1.75rem 1.5rem;width:100%;max-width:360px;box-shadow:0 24px 64px rgba(0,0,0,.4);}
+.card-title{font-size:11px;font-weight:700;letter-spacing:1.2px;text-transform:uppercase;color:#8896A8;margin-bottom:1.25rem;text-align:center;}
 .emp-list{display:flex;flex-direction:column;gap:8px;}
-.emp-btn{display:flex;align-items:center;gap:12px;padding:14px;border:1.5px solid #E3E7EE;border-radius:12px;background:#F5F6F8;cursor:pointer;width:100%;text-align:left;font-family:inherit;transition:all .15s;}
+.emp-btn{display:flex;align-items:center;gap:12px;padding:14px 16px;border:1.5px solid #E3E7EE;border-radius:12px;background:#F5F6F8;cursor:pointer;width:100%;font-family:inherit;transition:all .15s;}
 .emp-btn:active{transform:scale(.98);}
 .emp-btn.sel{border-color:#2D7D5A;background:#E8F5EF;}
 .av{width:42px;height:42px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:13px;font-weight:700;flex-shrink:0;}
 .av-0{background:#D1FAE5;color:#065F46;}
 .av-1{background:#FCE7F3;color:#9D174D;}
 .av-2{background:#FEF9C3;color:#854D0E;}
-.emp-name{font-size:14px;font-weight:600;color:#1C2B4A;}
-.emp-role{font-size:12px;color:#8896A8;margin-top:1px;}
-.emp-state{font-size:11px;font-weight:600;padding:3px 8px;border-radius:20px;flex-shrink:0;}
+.emp-name{font-size:15px;font-weight:600;color:#1C2B4A;text-align:left;}
+.emp-role{font-size:12px;color:#8896A8;text-align:left;}
+.emp-status{font-size:11px;font-weight:600;padding:3px 8px;border-radius:20px;margin-left:auto;flex-shrink:0;}
 .s-in{background:#D1FAE5;color:#065F46;}
 .s-out{background:#F1F5F9;color:#64748B;}
-.divider{height:1px;background:#E3E7EE;margin:1.25rem 0;}
-.greet{font-size:14px;color:#4A5568;margin-bottom:1rem;}
-.greet strong{color:#1C2B4A;}
-.action-btns{display:grid;grid-template-columns:1fr 1fr;gap:10px;}
-.btn-arr{padding:18px 12px;background:#2D7D5A;color:#fff;border:none;border-radius:12px;font-size:15px;font-weight:700;cursor:pointer;font-family:inherit;display:flex;flex-direction:column;align-items:center;gap:4px;}
-.btn-dep{padding:18px 12px;background:#1C2B4A;color:#fff;border:none;border-radius:12px;font-size:15px;font-weight:700;cursor:pointer;font-family:inherit;display:flex;flex-direction:column;align-items:center;gap:4px;}
-.btn-arr:disabled,.btn-dep:disabled{opacity:.3;cursor:not-allowed;}
-.btn-sub{font-size:11px;font-weight:400;opacity:.75;}
-.lock{font-size:11px;color:#A0AEC0;text-align:center;margin-top:10px;}
-.action-zone{display:none;}
-.action-zone.on{display:block;}
-/* SUCCÈS */
-.success{display:none;position:fixed;inset:0;background:#1C2B4A;z-index:99;flex-direction:column;align-items:center;justify-content:center;text-align:center;padding:2rem;}
-.success.on{display:flex;}
-.suc-icon{font-size:80px;margin-bottom:1.5rem;animation:pop .4s ease;}
-.suc-title{color:#fff;font-size:28px;font-weight:700;margin-bottom:8px;}
-.suc-time{color:#fff;font-size:52px;font-weight:200;font-variant-numeric:tabular-nums;margin-bottom:8px;}
-.suc-sub{color:rgba(255,255,255,.5);font-size:15px;margin-bottom:2rem;}
-.suc-back{background:rgba(255,255,255,.1);border:1px solid rgba(255,255,255,.2);color:#fff;padding:12px 28px;border-radius:12px;font-size:14px;font-weight:600;cursor:pointer;font-family:inherit;}
-/* LOADING */
-.loading{display:none;position:fixed;inset:0;background:rgba(28,43,74,.7);z-index:50;align-items:center;justify-content:center;}
-.loading.on{display:flex;}
-.spinner{width:44px;height:44px;border:3px solid rgba(255,255,255,.2);border-top-color:#fff;border-radius:50%;animation:spin .7s linear infinite;}
+
+/* ── ÉTAPE 2 : saisir PIN ── */
+#pin-screen{display:none;width:100%;max-width:360px;}
+.pin-card{background:#fff;border-radius:20px;padding:2rem 1.5rem;box-shadow:0 24px 64px rgba(0,0,0,.4);}
+.pin-emp-info{display:flex;align-items:center;gap:12px;margin-bottom:1.5rem;padding-bottom:1.25rem;border-bottom:1px solid #E3E7EE;}
+.pin-emp-name{font-size:16px;font-weight:700;color:#1C2B4A;}
+.pin-emp-role{font-size:12px;color:#8896A8;}
+.pin-hint{font-size:13px;color:#8896A8;text-align:center;margin-bottom:1.25rem;}
+.pin-dots{display:flex;justify-content:center;gap:14px;margin-bottom:1.75rem;}
+.pin-dot{width:16px;height:16px;border-radius:50%;background:#E3E7EE;transition:background .1s;}
+.pin-dot.on{background:#1C2B4A;}
+.pin-dot.err{background:#C0392B;}
+.pin-kb{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;}
+.pin-key{background:#F5F6F8;border:1px solid #E3E7EE;border-radius:12px;color:#1C2B4A;font-size:22px;font-weight:600;padding:18px;cursor:pointer;font-family:inherit;transition:all .1s;}
+.pin-key:active{background:#E3E7EE;transform:scale(.95);}
+.pin-key.back{font-size:18px;color:#8896A8;}
+.pin-key.cancel{font-size:14px;color:#8896A8;}
+.pin-err-msg{color:#C0392B;font-size:13px;text-align:center;margin-top:10px;min-height:18px;}
+
+/* ── SUCCÈS ── */
+#success{display:none;position:fixed;inset:0;z-index:99;flex-direction:column;align-items:center;justify-content:center;padding:2rem;text-align:center;}
+#success.on{display:flex;}
+.suc-icon{font-size:88px;margin-bottom:1.25rem;animation:pop .4s ease;}
+.suc-title{color:#fff;font-size:26px;font-weight:700;margin-bottom:6px;}
+.suc-time{color:rgba(255,255,255,.85);font-size:56px;font-weight:200;font-variant-numeric:tabular-nums;margin-bottom:6px;}
+.suc-sub{color:rgba(255,255,255,.55);font-size:15px;margin-bottom:2rem;}
+.suc-back{background:rgba(255,255,255,.15);border:1px solid rgba(255,255,255,.25);color:#fff;padding:14px 32px;border-radius:14px;font-size:15px;font-weight:600;cursor:pointer;font-family:inherit;}
+
+/* ── LOADING ── */
+#loading{display:none;position:fixed;inset:0;background:rgba(28,43,74,.75);z-index:50;align-items:center;justify-content:center;}
+#loading.on{display:flex;}
+.spinner{width:48px;height:48px;border:4px solid rgba(255,255,255,.2);border-top-color:#fff;border-radius:50%;animation:spin .7s linear infinite;}
+
 @keyframes spin{to{transform:rotate(360deg)}}
-@keyframes pop{0%{transform:scale(.5);opacity:0}70%{transform:scale(1.15)}100%{transform:scale(1);opacity:1}}
+@keyframes pop{0%{transform:scale(.3);opacity:0}70%{transform:scale(1.12)}100%{transform:scale(1);opacity:1}}
+@keyframes shake{0%,100%{transform:translateX(0)}25%{transform:translateX(-10px)}75%{transform:translateX(10px)}}
+.shake{animation:shake .3s ease;}
 </style>
 </head>
 <body>
+
 <div class="logo">RMV Gestion</div>
 <div class="clock" id="clock">--:--:--</div>
 <div class="datestr" id="datestr">—</div>
 
-<div class="card">
-  <div class="card-title">Qui êtes-vous ?</div>
-  <div class="emp-list" id="emp-list"></div>
-  <div class="action-zone" id="action-zone">
-    <div class="divider"></div>
-    <div class="greet">Bonjour <strong id="greet-name"></strong> 👋</div>
-    <div class="action-btns">
-      <button class="btn-arr" id="btn-arr" onclick="pointer('arrivee')">
-        <span style="font-size:24px;">✓</span>
-        <span>Arrivée</span>
-        <span class="btn-sub" id="arr-txt">—</span>
-      </button>
-      <button class="btn-dep" id="btn-dep" onclick="pointer('depart')">
-        <span style="font-size:24px;">↪</span>
-        <span>Départ</span>
-        <span class="btn-sub" id="dep-txt">—</span>
-      </button>
-    </div>
-    <div class="lock">🔒 Horodatage automatique — non modifiable</div>
+<!-- ÉTAPE 1 : choisir prénom -->
+<div id="step1">
+  <div class="card">
+    <div class="card-title">Qui êtes-vous ?</div>
+    <div class="emp-list" id="emp-list"></div>
   </div>
 </div>
 
-<div class="success" id="success">
+<!-- ÉTAPE 2 : saisir PIN -->
+<div id="pin-screen">
+  <div class="pin-card">
+    <div class="pin-emp-info">
+      <div class="av" id="pin-av"></div>
+      <div>
+        <div class="pin-emp-name" id="pin-name"></div>
+        <div class="pin-emp-role" id="pin-role"></div>
+      </div>
+    </div>
+    <div class="pin-hint">Entrez votre code PIN</div>
+    <div class="pin-dots" id="pin-dots">
+      <div class="pin-dot"></div>
+      <div class="pin-dot"></div>
+      <div class="pin-dot"></div>
+      <div class="pin-dot"></div>
+    </div>
+    <div class="pin-kb">
+      <button class="pin-key" onclick="pk('1')">1</button>
+      <button class="pin-key" onclick="pk('2')">2</button>
+      <button class="pin-key" onclick="pk('3')">3</button>
+      <button class="pin-key" onclick="pk('4')">4</button>
+      <button class="pin-key" onclick="pk('5')">5</button>
+      <button class="pin-key" onclick="pk('6')">6</button>
+      <button class="pin-key" onclick="pk('7')">7</button>
+      <button class="pin-key" onclick="pk('8')">8</button>
+      <button class="pin-key" onclick="pk('9')">9</button>
+      <button class="pin-key cancel" onclick="goStep1()">← Retour</button>
+      <button class="pin-key" onclick="pk('0')">0</button>
+      <button class="pin-key back" onclick="pk('back')">⌫</button>
+    </div>
+    <div class="pin-err-msg" id="pin-err"></div>
+  </div>
+</div>
+
+<!-- SUCCÈS -->
+<div id="success">
   <div class="suc-icon" id="suc-icon">✅</div>
-  <div class="suc-title" id="suc-title">Arrivée enregistrée</div>
+  <div class="suc-title" id="suc-title">Arrivée enregistrée !</div>
   <div class="suc-time" id="suc-time">--:--</div>
-  <div class="suc-sub" id="suc-sub">Bonne journée !</div>
+  <div class="suc-sub" id="suc-sub"></div>
   <button class="suc-back" onclick="hideSuc()">← Retour</button>
 </div>
 
-<div class="loading" id="loading"><div class="spinner"></div></div>
+<div id="loading"><div class="spinner"></div></div>
 
 <script>
 const SB_URL = "https://nkxcjyqmyozgxmadyzpx.supabase.co";
 const SB_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im5reGNqeXFteW96Z3htYWR5enB4Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODI3Mzk2ODAsImV4cCI6MjA5ODMxNTY4MH0.mhx80RM6jjpHG0HnwobEJTECmWLBxWDjY3PmWPbiM1I";
+const SK_PINS = "rmv_pins_v3";
 
 const EMPS = [
   {name:"Randy Beades",  role:"Gestionnaire Copro", initials:"RB"},
@@ -99,119 +138,196 @@ const EMPS = [
   {name:"Zohra Boulligh",role:"Assistante",         initials:"ZB"},
 ];
 
-let selIdx  = null;
-let todayPt = {}; // { empIdx: {arrivee, depart} }
+let selIdx    = null;
+let pinBuf    = "";
+let todayData = {}; // { empIdx: {arrivee, depart} }
 
 /* ── HORLOGE ── */
 function tick(){
-  const n=new Date();
-  document.getElementById("clock").textContent=n.toLocaleTimeString("fr-FR",{hour:"2-digit",minute:"2-digit",second:"2-digit"});
-  document.getElementById("datestr").textContent=n.toLocaleDateString("fr-FR",{weekday:"long",day:"numeric",month:"long"});
+  const n = new Date();
+  document.getElementById("clock").textContent = n.toLocaleTimeString("fr-FR",{hour:"2-digit",minute:"2-digit",second:"2-digit"});
+  document.getElementById("datestr").textContent = n.toLocaleDateString("fr-FR",{weekday:"long",day:"numeric",month:"long"});
 }
-setInterval(tick,1000);tick();
+setInterval(tick,1000); tick();
 
-function todayISO(){return new Date().toISOString().slice(0,10);}
-function nowHM(){return new Date().toLocaleTimeString("fr-FR",{hour:"2-digit",minute:"2-digit"});}
+function todayISO(){ return new Date().toISOString().slice(0,10); }
+function nowHM(){ return new Date().toLocaleTimeString("fr-FR",{hour:"2-digit",minute:"2-digit"}); }
+const hdrs = () => ({"apikey":SB_KEY,"Authorization":"Bearer "+SB_KEY,"Content-Type":"application/json","Prefer":"return=minimal"});
+function ldPins(){ try{const d=JSON.parse(localStorage.getItem(SK_PINS));return Array.isArray(d)&&d.length===3?d:["0000","0000","0000"];}catch{return["0000","0000","0000"];} }
 
-/* ── SUPABASE ── */
-const hdrs=()=>({
-  "apikey":SB_KEY,
-  "Authorization":"Bearer "+SB_KEY,
-  "Content-Type":"application/json",
-  "Prefer":"return=minimal"
-});
-
+/* ── CHARGEMENT POINTAGES DU JOUR ── */
 async function loadToday(){
   load(true);
   try{
-    const r=await fetch(`${SB_URL}/rest/v1/pointages?date=eq.${todayISO()}&order=created_at.asc`,{headers:hdrs()});
-    const rows=await r.json();
-    todayPt={};
-    rows.forEach(row=>{
-      if(!todayPt[row.employe_idx])todayPt[row.employe_idx]={};
-      todayPt[row.employe_idx][row.type]=row.heure;
-    });
-  }catch(e){console.error(e);}
-  load(false);
-  renderList();
-}
-
-async function pointer(type){
-  if(selIdx===null)return;
-  const entry=todayPt[selIdx]||{};
-  if(type==="arrivee"&&entry.arrivee)return;
-  if(type==="depart"&&(!entry.arrivee||entry.depart))return;
-  load(true);
-  const heure=nowHM();
-  try{
-    const r=await fetch(`${SB_URL}/rest/v1/pointages`,{
-      method:"POST",headers:hdrs(),
-      body:JSON.stringify({employe_idx:selIdx,date:todayISO(),type,heure})
-    });
-    if(r.ok||r.status===201){
-      if(!todayPt[selIdx])todayPt[selIdx]={};
-      todayPt[selIdx][type]=heure;
-      load(false);
-      showSuc(type,heure);
-      renderList();
-    } else {
-      load(false);
-      alert("Erreur d'enregistrement ("+r.status+"). Réessayez.");
+    const r = await fetch(`${SB_URL}/rest/v1/pointages?date=eq.${todayISO()}&order=created_at.asc`,{headers:hdrs()});
+    const rows = await r.json();
+    todayData = {};
+    if(Array.isArray(rows)){
+      rows.forEach(row=>{
+        if(!todayData[row.employe_idx]) todayData[row.employe_idx]={};
+        todayData[row.employe_idx][row.type]=row.heure;
+      });
     }
-  }catch(e){load(false);alert("Erreur réseau. Vérifiez votre connexion.");}
+  }catch(e){ console.error("Erreur chargement:",e); }
+  load(false);
+  renderStep1();
 }
 
-/* ── RENDU ── */
-function renderList(){
-  document.getElementById("emp-list").innerHTML=EMPS.map((e,i)=>{
-    const p=todayPt[i]||{};
-    const isIn=p.arrivee&&!p.depart;
-    const isOut=p.arrivee&&p.depart;
-    const stLbl=isIn?"Présent":isOut?"Sorti":"";
-    const stCls=isIn?"s-in":isOut?"s-out":"";
-    const detail=isIn?`Arrivée ${p.arrivee}`:isOut?`${p.arrivee} → ${p.depart}`:"Non pointé";
-    return`<button class="emp-btn${selIdx===i?" sel":""}" onclick="select(${i})">
+/* ── ÉTAPE 1 ── */
+function renderStep1(){
+  document.getElementById("emp-list").innerHTML = EMPS.map((e,i)=>{
+    const p = todayData[i]||{};
+    const isIn  = p.arrivee && !p.depart;
+    const isOut = p.arrivee && p.depart;
+    const stLbl = isIn?"Présent":isOut?"Sorti":"";
+    const stCls = isIn?"s-in":"s-out";
+    const detail = isIn?`Arrivée ${p.arrivee}`:isOut?`${p.arrivee} → ${p.depart}`:"Non pointé";
+    return`<button class="emp-btn${selIdx===i?" sel":""}" onclick="goStep2(${i})">
       <div class="av av-${i}">${e.initials}</div>
-      <div style="flex:1;"><div class="emp-name">${e.name}</div><div class="emp-role">${detail}</div></div>
-      ${stLbl?`<span class="emp-state ${stCls}">${stLbl}</span>`:""}
+      <div style="flex:1;">
+        <div class="emp-name">${e.name}</div>
+        <div class="emp-role">${detail}</div>
+      </div>
+      ${stLbl?`<span class="emp-status ${stCls}">${stLbl}</span>`:""}
     </button>`;
   }).join("");
-  if(selIdx!==null)updateAction();
 }
 
-function select(i){
-  selIdx=i;
-  renderList();
-  const az=document.getElementById("action-zone");
-  az.classList.add("on");
-  updateAction();
-  az.scrollIntoView({behavior:"smooth",block:"nearest"});
+/* ── ÉTAPE 2 : PIN ── */
+function goStep2(idx){
+  selIdx = idx;
+  pinBuf = "";
+  const emp = EMPS[idx];
+  // Remplir infos
+  const av = document.getElementById("pin-av");
+  av.textContent = emp.initials;
+  av.className = "av av-"+idx;
+  document.getElementById("pin-name").textContent = emp.name;
+  document.getElementById("pin-role").textContent = emp.role;
+  document.getElementById("pin-err").textContent = "";
+  updateDots();
+  // Switcher les écrans
+  document.getElementById("step1").style.display = "none";
+  document.getElementById("pin-screen").style.display = "block";
 }
 
-function updateAction(){
-  const e=EMPS[selIdx];
-  const p=todayPt[selIdx]||{};
-  document.getElementById("greet-name").textContent=e.name.split(" ")[0];
-  document.getElementById("arr-txt").textContent=p.arrivee||"Pas encore";
-  document.getElementById("dep-txt").textContent=p.depart||"Pas encore";
-  document.getElementById("btn-arr").disabled=!!p.arrivee;
-  document.getElementById("btn-dep").disabled=!p.arrivee||!!p.depart;
+function goStep1(){
+  selIdx = null; pinBuf = "";
+  document.getElementById("pin-screen").style.display = "none";
+  document.getElementById("step1").style.display = "block";
+  renderStep1();
+}
+
+/* ── CLAVIER PIN ── */
+function pk(v){
+  if(v==="back"){ pinBuf=pinBuf.slice(0,-1); updateDots(); return; }
+  if(pinBuf.length>=4) return;
+  pinBuf += v;
+  updateDots();
+  // Dès 4 chiffres → vérifier immédiatement
+  if(pinBuf.length===4) setTimeout(checkPin, 80);
+}
+
+function updateDots(){
+  document.querySelectorAll(".pin-dot").forEach((d,i)=>{
+    d.classList.toggle("on", i < pinBuf.length);
+    d.classList.remove("err");
+  });
+}
+
+function checkPin(){
+  const pins = ldPins();
+  if(pinBuf === pins[selIdx]){
+    // ✅ PIN correct → pointer automatiquement
+    doPointer();
+  } else {
+    // ❌ PIN incorrect → shake + reset
+    document.querySelectorAll(".pin-dot").forEach(d=>d.classList.add("err"));
+    document.getElementById("pin-dots").classList.add("shake");
+    document.getElementById("pin-err").textContent = "Code incorrect, réessayez.";
+    setTimeout(()=>{
+      document.getElementById("pin-dots").classList.remove("shake");
+      pinBuf="";
+      updateDots();
+    },400);
+  }
+}
+
+/* ── ENREGISTRER LE POINTAGE ── */
+async function doPointer(){
+  const p = todayData[selIdx]||{};
+  let type;
+  if(!p.arrivee)           type = "arrivee";
+  else if(!p.depart)       type = "depart";
+  else {
+    // Déjà complètement pointé
+    showSuc("done", null);
+    return;
+  }
+  load(true);
+  const heure = nowHM();
+  try{
+    const r = await fetch(`${SB_URL}/rest/v1/pointages`,{
+      method:"POST", headers:hdrs(),
+      body: JSON.stringify({employe_idx:selIdx, date:todayISO(), type, heure})
+    });
+    load(false);
+    if(r.ok||r.status===201){
+      if(!todayData[selIdx]) todayData[selIdx]={};
+      todayData[selIdx][type] = heure;
+      showSuc(type, heure);
+    } else {
+      const err = await r.text();
+      document.getElementById("pin-err").textContent = "Erreur serveur. Réessayez.";
+      console.error(err);
+      pinBuf=""; updateDots();
+    }
+  }catch(e){
+    load(false);
+    document.getElementById("pin-err").textContent = "Erreur réseau. Réessayez.";
+    pinBuf=""; updateDots();
+  }
 }
 
 /* ── SUCCÈS ── */
-function showSuc(type,heure){
-  const e=EMPS[selIdx];
-  document.getElementById("suc-icon").textContent=type==="arrivee"?"✅":"👋";
-  document.getElementById("suc-title").textContent=type==="arrivee"?"Arrivée enregistrée !":"Départ enregistré !";
-  document.getElementById("suc-time").textContent=heure;
-  document.getElementById("suc-sub").textContent=type==="arrivee"?"Bonne journée "+e.name.split(" ")[0]+" !":"À demain "+e.name.split(" ")[0]+" !";
-  document.getElementById("success").classList.add("on");
-  if(navigator.vibrate)navigator.vibrate([100,50,100]);
-  setTimeout(hideSuc,5000);
+function showSuc(type, heure){
+  const emp  = EMPS[selIdx];
+  const prenom = emp.name.split(" ")[0];
+  const suc  = document.getElementById("success");
+  if(type==="done"){
+    suc.style.background="#1C2B4A";
+    document.getElementById("suc-icon").textContent="⏸";
+    document.getElementById("suc-title").textContent="Déjà pointé aujourd'hui";
+    document.getElementById("suc-time").textContent=`${todayData[selIdx].arrivee} → ${todayData[selIdx].depart}`;
+    document.getElementById("suc-sub").textContent="Bonne journée "+prenom+" !";
+  } else if(type==="arrivee"){
+    suc.style.background="#2D7D5A";
+    document.getElementById("suc-icon").textContent="✅";
+    document.getElementById("suc-title").textContent="Arrivée enregistrée !";
+    document.getElementById("suc-time").textContent=heure;
+    document.getElementById("suc-sub").textContent="Bonne journée "+prenom+" !";
+  } else {
+    suc.style.background="#1C2B4A";
+    document.getElementById("suc-icon").textContent="👋";
+    document.getElementById("suc-title").textContent="Départ enregistré !";
+    document.getElementById("suc-time").textContent=heure;
+    document.getElementById("suc-sub").textContent="À demain "+prenom+" !";
+  }
+  suc.classList.add("on");
+  if(navigator.vibrate) navigator.vibrate([80,40,80]);
+  setTimeout(()=>{ hideSuc(); goStep1(); }, 5000);
 }
-function hideSuc(){document.getElementById("success").classList.remove("on");}
-function load(v){document.getElementById("loading").classList.toggle("on",v);}
 
+function hideSuc(){
+  document.getElementById("success").classList.remove("on");
+  document.getElementById("pin-screen").style.display="none";
+  document.getElementById("step1").style.display="block";
+  renderStep1();
+}
+
+function load(v){ document.getElementById("loading").classList.toggle("on",v); }
+
+/* ── INIT ── */
 loadToday();
 </script>
 </body>
