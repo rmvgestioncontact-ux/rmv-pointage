@@ -225,7 +225,7 @@ body{font-family:'Inter',-apple-system,sans-serif;background:var(--bg);color:var
 
 <!-- ══ ÉQUIPE ══ -->
 <section id="equipe" class="tab-section active">
-  <div class="card"><div class="card-label">Présence aujourd'hui</div><div id="presence-live"></div></div>
+  <div class="card"><div class="card-label">Présence aujourd'hui <span style="font-weight:400;text-transform:none;letter-spacing:0;color:var(--slate-light);">· Horaires officiels : 9h30–12h et 14h–18h30</span></div><div id="presence-live"></div></div>
   <div class="card"><div class="card-label">Soldes heures supplémentaires</div><div id="soldes-equipe"></div></div>
 </section>
 
@@ -413,6 +413,10 @@ body{font-family:'Inter',-apple-system,sans-serif;background:var(--bg);color:var
       <button class="btn" onclick="closeAdminModal()">Annuler</button>
       <button class="btn btn-navy" style="margin-top:0;" onclick="checkAdmin()">Valider</button>
     </div>
+    <div id="admin-extra" style="display:none;margin-top:1rem;border-top:1px solid var(--border);padding-top:1rem;">
+      <div style="font-size:12px;color:var(--slate);margin-bottom:10px;">Zone gérant — données actuellement enregistrées</div>
+      <button class="btn" style="width:100%;color:var(--red);border-color:var(--red-light);background:var(--red-light);" onclick="resetAll()">🗑 Effacer toutes les données</button>
+    </div>
   </div>
 </div>
 
@@ -421,7 +425,12 @@ body{font-family:'Inter',-apple-system,sans-serif;background:var(--bg);color:var
 <script>
 /* ══ CONFIG ══ */
 const ADMIN_CODE  = "1234";
-const HORAIRE_STD = 8;
+// Horaires officiels RMV Gestion : 9h30-12h00 et 14h00-18h30
+const HEURE_DEBUT_MATIN  = 9.5;   // 9h30
+const HEURE_FIN_MATIN    = 12.0;  // 12h00
+const HEURE_DEBUT_APREM  = 14.0;  // 14h00
+const HEURE_FIN_APREM    = 18.5;  // 18h30
+const HORAIRE_STD = (HEURE_FIN_MATIN - HEURE_DEBUT_MATIN) + (HEURE_FIN_APREM - HEURE_DEBUT_APREM); // 7h en tout
 const STORE_PT    = "rmv_pt_v2";
 const STORE_HS    = "rmv_hs_v2";
 const STORE_RECUP = "rmv_recup_v2";
@@ -461,23 +470,27 @@ function saveCG(d)      { localStorage.setItem(STORE_CG, JSON.stringify(d)); }
 function saveCGSolde(d) { localStorage.setItem(STORE_CGSOLDE, JSON.stringify(d)); }
 
 function sanitize() {
-  // Nettoie les données en cas d'anciens enregistrements avec 4 employés
+  // Remet à zéro toutes les données sauf la structure employés
+  // Force reset si ancienne version détectée (4 employés)
+  const hs = loadHS();
+  const needsReset = hs.length !== EMPLOYEES.length;
+  if (needsReset) {
+    savePT({});
+    saveHS([[], [], []]);
+    saveCG([]);
+    saveRecup([]);
+    saveCGSolde([25, 25, 25]);
+    return;
+  }
+  // Sinon juste nettoyer les index invalides
   const pt = loadPT();
   let changed = false;
   Object.keys(pt).forEach(idx => { if(parseInt(idx) >= EMPLOYEES.length) { delete pt[idx]; changed=true; }});
   if(changed) savePT(pt);
-
-  const hs = loadHS();
-  while(hs.length > EMPLOYEES.length) { hs.pop(); }
-  while(hs.length < EMPLOYEES.length) { hs.push([]); }
-  saveHS(hs);
-
   const cgs = loadCG().filter(c => c.emp < EMPLOYEES.length);
   saveCG(cgs);
-
   const recups = loadRecup().filter(r => r.emp < EMPLOYEES.length);
   saveRecup(recups);
-
   const solde = loadCGSolde();
   while(solde.length > EMPLOYEES.length) solde.pop();
   while(solde.length < EMPLOYEES.length) solde.push(25);
@@ -489,6 +502,42 @@ sanitize();
 /* ══ UTILITAIRES ══ */
 function t2h(t){if(!t)return null;const[h,m]=t.split(":").map(Number);return h+m/60;}
 function hworked(a,d){if(!a||!d)return null;return Math.max(0,t2h(d)-t2h(a));}
+
+// Retourne le delta par rapport aux horaires officiels :
+// arrivée avant 9h30 = heures supp matin
+// départ après 18h30 = heures supp soir
+// arrivée après 9h30 = retard
+// départ avant 18h30 = départ anticipé
+function calcDelta(arrivee, depart) {
+  if (!arrivee) return null;
+  const arr = t2h(arrivee);
+  const dep = depart ? t2h(depart) : null;
+  let delta = 0;
+  // Avance à l'arrivée (avant 9h30)
+  if (arr < HEURE_DEBUT_MATIN) delta += HEURE_DEBUT_MATIN - arr;
+  // Retard à l'arrivée (après 9h30)
+  if (arr > HEURE_DEBUT_MATIN) delta -= arr - HEURE_DEBUT_MATIN;
+  // Départ
+  if (dep !== null) {
+    if (dep > HEURE_FIN_APREM) delta += dep - HEURE_FIN_APREM;
+    if (dep < HEURE_FIN_APREM) delta -= HEURE_FIN_APREM - dep;
+  }
+  return delta;
+}
+
+// Retourne un label expliquant l'écart
+function deltaLabel(arrivee, depart) {
+  const arr = t2h(arrivee);
+  const dep = depart ? t2h(depart) : null;
+  const parts = [];
+  if (arr < HEURE_DEBUT_MATIN) parts.push("arrivée anticipée");
+  if (arr > HEURE_DEBUT_MATIN + 0.05) parts.push("arrivée tardive");
+  if (dep !== null) {
+    if (dep > HEURE_FIN_APREM + 0.05) parts.push("départ tardif");
+    if (dep < HEURE_FIN_APREM - 0.05) parts.push("départ anticipé");
+  }
+  return parts.join(" · ");
+}
 function fh(h,sign=false){
   if(h===null||isNaN(h))return"—";
   const s=h<0?"-":(sign?"+":"");
@@ -511,7 +560,10 @@ function countJours(debut,fin){
 
 function totalSuppAuto(idx){
   const pt=loadPT()[idx]||{};
-  return Object.values(pt).reduce((s,p)=>{const w=hworked(p.arrivee,p.depart);return w!==null?s+(w-HORAIRE_STD):s;},0);
+  return Object.values(pt).reduce((s,p)=>{
+    const d=calcDelta(p.arrivee,p.depart);
+    return d!==null?s+d:s;
+  },0);
 }
 function totalSuppManuel(idx){return(loadHS()[idx]||[]).reduce((s,e)=>s+e.h,0);}
 function totalSolde(idx){return totalSuppAuto(idx)+totalSuppManuel(idx);}
@@ -551,15 +603,26 @@ function renderEquipe(){
     }
     let tlHTML="";
     if(p.arrivee&&!enConge){
-      const start=8,end=20,span=end-start;
+      const start=9,end=19.5,span=end-start;
       const arrH=Math.max(t2h(p.arrivee),start);
       const depH=p.depart?Math.min(t2h(p.depart),end):Math.min(t2h(nowStr())||0,end);
       const left=Math.max(0,((arrH-start)/span)*100);
       const width=Math.max(0,((depH-arrH)/span)*100);
       const colors=["#7C6AE8","#2D7D5A","#C47B2B"];
-      tlHTML=`<div class="day-timeline"><div class="day-timeline-track"><div class="day-timeline-fill" style="margin-left:${left}%;width:${width}%;background:${colors[i]};"></div></div><div class="day-timeline-labels"><span>8h</span>${p.arrivee?`<span style="color:${colors[i]};">${p.arrivee}${p.depart?" → "+p.depart:" →"}</span>`:""}<span>20h</span></div></div>`;
+      const lateArr=p.arrivee&&t2h(p.arrivee)>HEURE_DEBUT_MATIN+0.05;
+      const earlyDep=p.depart&&t2h(p.depart)<HEURE_FIN_APREM-0.05;
+      const barColor=lateArr?"var(--amber)":earlyDep?"var(--red)":colors[i];
+      const offL=((HEURE_DEBUT_MATIN-start)/span)*100;
+      const offW=((HEURE_FIN_APREM-HEURE_DEBUT_MATIN)/span)*100;
+      tlHTML=`<div class="day-timeline"><div class="day-timeline-track" style="position:relative;overflow:visible;background:var(--border);">
+        <div style="position:absolute;left:${offL}%;width:${offW}%;height:100%;background:rgba(45,125,90,0.1);border-radius:3px;pointer-events:none;"></div>
+        <div class="day-timeline-fill" style="position:absolute;margin-left:${left}%;width:${width}%;background:${barColor};"></div>
+      </div><div class="day-timeline-labels"><span>9h</span>${p.arrivee?`<span style="color:${barColor};">${lateArr?"⚠️ ":""}${p.arrivee}${p.depart?" → "+p.depart:" →"}${earlyDep?" ⚠️":""}</span>`:""}<span>19h30</span></div></div>`;
     }
-    const detail=enConge?TYPE_LABELS[enConge.type]:(!p.arrivee?"Non pointé":parti?`${w!==null?w.toFixed(1)+"h travaillées":""}`:`Arrivée à ${p.arrivee}`);
+    const delta=(!enConge&&p.arrivee)?calcDelta(p.arrivee,p.depart):null;
+    const deltaStr=delta!==null&&Math.abs(delta)>0.05?` (${fh(delta,true)})`:"";
+    const lateWarn=p.arrivee&&t2h(p.arrivee)>HEURE_DEBUT_MATIN+0.05?" ⚠️":"";
+    const detail=enConge?TYPE_LABELS[enConge.type]:(!p.arrivee?"Non pointé":parti?`${w!==null?w.toFixed(1)+"h"+deltaStr:""}`:`Arrivée à ${p.arrivee}${lateWarn}${deltaStr}`);
     return `<div class="presence-card"><div class="presence-header"><div class="avatar av-${i}">${emp.initials}</div><div style="flex:1;"><div class="presence-name">${emp.name}</div><div class="presence-times">${detail}</div></div>${statusBadge}</div>${tlHTML}</div>`;
   }).join("");
   document.getElementById("presence-live").innerHTML=presenceHTML;
@@ -783,11 +846,19 @@ function renderMois(){
   const hsMois=hs.filter(e=>e.date.startsWith(prefix));
   const totalH=ptMois.reduce((s,[,p])=>{const w=hworked(p.arrivee,p.depart);return w!==null?s+w:s;},0);
   const jours=ptMois.filter(([,p])=>p.arrivee).length;
-  const suppMois=ptMois.reduce((s,[,p])=>{const w=hworked(p.arrivee,p.depart);return w!==null?s+(w-HORAIRE_STD):s;},0)+hsMois.reduce((s,e)=>s+e.h,0);
+  const suppMois=ptMois.reduce((s,[,p])=>{const d=calcDelta(p.arrivee,p.depart);return d!==null?s+d:s;},0)+hsMois.reduce((s,e)=>s+e.h,0);
   document.getElementById("mois-stats").innerHTML=`<div class="stat-box"><div class="stat-box-label">Jours pointés</div><div class="stat-box-val neutral">${jours}j</div></div><div class="stat-box"><div class="stat-box-label">Heures totales</div><div class="stat-box-val neutral">${totalH.toFixed(1)}h</div></div><div class="stat-box"><div class="stat-box-label">Solde supp</div><div class="stat-box-val ${suppMois>0?"pos":suppMois<0?"neg":"neutral"}">${fh(suppMois,true)}</div></div>`;
   const rows=[...ptMois].sort((a,b)=>b[0].localeCompare(a[0])).map(([date,p])=>{
-    const w=hworked(p.arrivee,p.depart);const delta=w!==null?w-HORAIRE_STD:null;
-    return `<tr><td>${fdateFull(date)}</td><td>${p.arrivee||"—"}</td><td>${p.depart||"…"}</td><td style="font-weight:600;">${w!==null?w.toFixed(1)+"h":"—"}</td><td style="color:${delta===null?"var(--slate)":delta>0.1?"var(--jade)":delta<-0.1?"var(--red)":"var(--slate)"};font-weight:600;">${delta!==null?fh(delta,true):"—"}</td></tr>`;
+    const w=hworked(p.arrivee,p.depart);
+    const delta=calcDelta(p.arrivee,p.depart);
+    const lbl=p.arrivee?deltaLabel(p.arrivee,p.depart):"";
+    return `<tr>
+      <td>${fdateFull(date)}</td>
+      <td style="font-variant-numeric:tabular-nums;">${p.arrivee||"—"}</td>
+      <td style="font-variant-numeric:tabular-nums;">${p.depart||"…"}</td>
+      <td style="font-weight:600;">${w!==null?w.toFixed(1)+"h":"—"}</td>
+      <td style="color:${delta===null?"var(--slate)":delta>0.05?"var(--jade)":delta<-0.05?"var(--red)":"var(--slate)"};font-weight:600;" title="${lbl}">${delta!==null?fh(delta,true):"—"}</td>
+    </tr>`;
   }).join("");
   const hsRows=hsMois.map(e=>`<tr><td>${fdateFull(e.date)}</td><td colspan="3" style="color:var(--slate);">${e.desc}</td><td style="color:${e.h>0?"var(--jade)":"var(--amber)"};font-weight:600;">${fh(e.h,true)} <span style="font-size:10px;opacity:.6;">(manuel)</span></td></tr>`).join("");
   document.getElementById("mois-table").innerHTML=rows||hsRows?`<table class="month-table"><thead><tr><th>Date</th><th>Arrivée</th><th>Départ</th><th>Durée</th><th>Écart</th></tr></thead><tbody>${rows}${hsRows}</tbody></table>`:`<div class="empty"><div class="empty-icon">📅</div>Aucune donnée pour ce mois.</div>`;
@@ -850,9 +921,10 @@ function renderSemaineTable(){
     const cols=EMPLOYEES.map((_,i)=>{
       const p=pt[i]?.[date]||{};
       if(!p.arrivee)return`<td style="text-align:center;color:var(--slate-light);font-size:11px;">—</td>`;
-      const w=hworked(p.arrivee,p.depart);const d=w!==null?w-HORAIRE_STD:null;
-      const col=d===null?"var(--slate)":d>0.1?"var(--jade)":d<-0.1?"var(--red)":"var(--slate)";
-      return`<td style="text-align:center;font-size:11px;font-variant-numeric:tabular-nums;"><div>${p.arrivee}</div><div style="color:var(--slate-light);">${p.depart||"…"}</div>${w!==null?`<div style="font-weight:700;color:${col};">${w.toFixed(1)}h</div>`:""}</td>`;
+      const w=hworked(p.arrivee,p.depart);const d=calcDelta(p.arrivee,p.depart);
+      const col=d===null?"var(--slate)":d>0.05?"var(--jade)":d<-0.05?"var(--red)":"var(--slate)";
+      const warn=p.arrivee&&t2h(p.arrivee)>HEURE_DEBUT_MATIN+0.05?"⚠️":"";
+      return`<td style="text-align:center;font-size:11px;font-variant-numeric:tabular-nums;"><div>${warn}${p.arrivee}</div><div style="color:var(--slate-light);">${p.depart||"…"}</div>${d!==null?`<div style="font-weight:700;color:${col};">${fh(d,true)}</div>`:""}</td>`;
     }).join("");
     return`<tr><td style="font-size:11px;color:var(--slate-light);white-space:nowrap;">${fdateFull(date)}</td>${cols}</tr>`;
   }).join("");
@@ -865,12 +937,26 @@ function openAdminModal(){
   document.getElementById("admin-modal").classList.add("open");
   setTimeout(()=>document.getElementById("admin-code-input").focus(),100);
 }
-function closeAdminModal(){document.getElementById("admin-modal").classList.remove("open");document.getElementById("admin-code-input").value="";}
+function closeAdminModal(){
+  document.getElementById("admin-modal").classList.remove("open");
+  document.getElementById("admin-code-input").value="";
+  document.getElementById("admin-code-input").style.display="";
+  document.getElementById("admin-code-input").previousElementSibling.style.display="";
+  document.getElementById("admin-extra").style.display="none";
+  document.querySelector(".modal-btns").style.display="";
+  document.querySelector(".modal-sub").textContent="Entrez votre code pour valider les demandes et modifier les données.";
+}
 function checkAdmin(){
   if(document.getElementById("admin-code-input").value===ADMIN_CODE){
-    adminMode=true;closeAdminModal();
+    adminMode=true;
     document.getElementById("admin-btn").textContent="🔓 Admin ON";
     document.getElementById("admin-btn").style.background="var(--jade)";
+    // Afficher zone admin dans le modal au lieu de fermer
+    document.getElementById("admin-extra").style.display="block";
+    document.getElementById("admin-code-input").style.display="none";
+    document.getElementById("admin-code-input").previousElementSibling.style.display="none";
+    const btns=document.querySelector(".modal-btns");btns.style.display="none";
+    document.querySelector(".modal-sub").textContent="Mode gérant activé.";
     showToast("Mode admin activé","ok");renderAll();
   } else {showToast("Code incorrect");}
 }
@@ -889,6 +975,24 @@ function switchTab(tab,el){
 }
 
 function renderAll(){renderEquipe();renderConges();renderRecup();}
+
+function resetAll(){
+  if(!adminMode)return;
+  if(!confirm("Effacer TOUTES les données (pointages, congés, heures supp) ? Cette action est irréversible."))return;
+  savePT({});
+  saveHS([[],[],[]]);
+  saveCG([]);
+  saveRecup([]);
+  saveCGSolde([25,25,25]);
+  closeAdminModal();
+  adminMode=false;
+  document.getElementById("admin-btn").textContent="🔒 Admin";
+  document.getElementById("admin-btn").style.background="rgba(255,255,255,.1)";
+  renderAll();
+  renderAgenda();
+  renderMois();
+  showToast("Données effacées","ok");
+}
 
 function showToast(msg,type){
   const t=document.getElementById("toast");
