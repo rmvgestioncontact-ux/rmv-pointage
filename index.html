@@ -515,10 +515,9 @@ body {
   <div class="selector-row">
     <span>Employé</span>
     <select id="mois-emp" onchange="renderMois()">
-      <option value="0">Alice Martin</option>
-      <option value="1">Bruno Leblanc</option>
-      <option value="2">Carla Dupont</option>
-      <option value="3">David Noël</option>
+      <option value="0">Randy Beades</option>
+      <option value="1">Laura Pauline</option>
+      <option value="2">Zohra Boulligh</option>
     </select>
   </div>
 
@@ -573,10 +572,9 @@ body {
       <div class="form-group">
         <label>Je suis</label>
         <select id="recup-emp">
-          <option value="0">Alice Martin</option>
-          <option value="1">Bruno Leblanc</option>
-          <option value="2">Carla Dupont</option>
-          <option value="3">David Noël</option>
+          <option value="0">Randy Beades</option>
+          <option value="1">Laura Pauline</option>
+          <option value="2">Zohra Boulligh</option>
         </select>
       </div>
       <div class="form-group">
@@ -653,10 +651,9 @@ const STORE_HS      = "rmv_hs_v2";
 const STORE_RECUP   = "rmv_recup_v2";
 
 const EMPLOYEES = [
-  { name:"Alice Martin",  role:"Comptable",    initials:"AM" },
-  { name:"Bruno Leblanc", role:"Gestionnaire", initials:"BL" },
-  { name:"Carla Dupont",  role:"Assistante",   initials:"CD" },
-  { name:"David Noël",    role:"Technicien",   initials:"DN" },
+  { name:"Randy Beades",   role:"Gestionnaire Copro", initials:"RB" },
+  { name:"Laura Pauline",  role:"Gestionnaire Loc",   initials:"LP" },
+  { name:"Zohra Boulligh", role:"Assistante",         initials:"ZB" },
 ];
 
 let adminMode   = false;
@@ -668,7 +665,7 @@ let qrSelected   = null;
    STORAGE
 ══════════════════════════════════════ */
 function loadPT()    { try { return JSON.parse(localStorage.getItem(STORE_PT))    || {}; }      catch { return {}; } }
-function loadHS()    { try { return JSON.parse(localStorage.getItem(STORE_HS))    || [[],[],[],[]]; } catch { return [[],[],[],[]]; } }
+function loadHS()    { try { return JSON.parse(localStorage.getItem(STORE_HS))    || [[],[],[]]; } catch { return [[],[],[]]; } }
 function loadRecup() { try { return JSON.parse(localStorage.getItem(STORE_RECUP)) || []; }      catch { return []; } }
 function savePT(d)    { localStorage.setItem(STORE_PT,    JSON.stringify(d)); }
 function saveHS(d)    { localStorage.setItem(STORE_HS,    JSON.stringify(d)); }
@@ -698,25 +695,18 @@ function initDemo() {
       "2026-06-26":{ arrivee:"09:00", depart:"17:00", locked:true },
       "2026-06-27":{ arrivee:"09:00", locked:true },
     },
-    3: {
-      "2026-06-23":{ arrivee:"08:00", depart:"19:30", locked:true },
-      "2026-06-24":{ arrivee:"09:00", depart:"17:00", locked:true },
-      "2026-06-25":{ arrivee:"09:00", depart:"17:00", locked:true },
-      "2026-06-26":{ arrivee:"09:10", depart:"17:00", locked:true },
-    },
   };
   savePT(pt);
   const hs = [
-    [{ date:"2026-06-09", desc:"Réunion budget prolongée", h:2,   type:"supp" }],
+    [{ date:"2026-06-09", desc:"Réunion syndic prolongée", h:2,   type:"supp" }],
     [{ date:"2026-06-17", desc:"Urgence locataire",        h:1.5, type:"supp" }],
     [{ date:"2026-06-12", desc:"Dossier sinistre",         h:2.5, type:"supp" }],
-    [{ date:"2026-06-13", desc:"Astreinte weekend",        h:3,   type:"supp" }],
   ];
   saveHS(hs);
   const recup = [
     { id:1, emp:1, date:"2026-07-04", h:2,   motif:"Rendez-vous médical", status:"en-attente", ts: Date.now()-86400000 },
-    { id:2, emp:3, date:"2026-07-07", h:3,   motif:"",                    status:"approuve",   ts: Date.now()-172800000 },
-    { id:3, emp:0, date:"2026-07-10", h:1.5, motif:"Démarches admin",     status:"en-attente", ts: Date.now()-3600000 },
+    { id:2, emp:2, date:"2026-07-07", h:1.5, motif:"",                    status:"approuve",   ts: Date.now()-172800000 },
+    { id:3, emp:0, date:"2026-07-10", h:2,   motif:"Démarches admin",     status:"en-attente", ts: Date.now()-3600000 },
   ];
   saveRecup(recup);
 }
