@@ -214,6 +214,82 @@ body{font-family:'Inter',-apple-system,sans-serif;background:var(--bg);color:var
   </div>
 </header>
 
+<!-- ══ ÉCRAN DE CONNEXION ══ -->
+<div id="login-screen" style="
+  position:fixed;inset:0;background:var(--navy);z-index:500;
+  display:flex;flex-direction:column;align-items:center;justify-content:center;padding:2rem;">
+  <div style="color:rgba(255,255,255,.5);font-size:11px;letter-spacing:2px;text-transform:uppercase;margin-bottom:8px;">RMV Gestion</div>
+  <div style="color:white;font-size:22px;font-weight:700;margin-bottom:4px;">Bonjour 👋</div>
+  <div style="color:rgba(255,255,255,.45);font-size:13px;margin-bottom:2rem;">Qui êtes-vous ?</div>
+
+  <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;width:100%;max-width:320px;margin-bottom:2rem;">
+    <button class="login-emp-btn" onclick="selectLoginEmp(0)">
+      <div class="avatar av-0" style="margin:0 auto 8px;">RB</div>
+      <div style="font-size:13px;font-weight:600;color:white;">Randy</div>
+      <div style="font-size:11px;color:rgba(255,255,255,.4);">Gest. Copro</div>
+    </button>
+    <button class="login-emp-btn" onclick="selectLoginEmp(1)">
+      <div class="avatar av-1" style="margin:0 auto 8px;">LP</div>
+      <div style="font-size:13px;font-weight:600;color:white;">Laura</div>
+      <div style="font-size:11px;color:rgba(255,255,255,.4);">Gest. Loc</div>
+    </button>
+    <button class="login-emp-btn" onclick="selectLoginEmp(2)" style="grid-column:1/-1;max-width:140px;margin:0 auto;">
+      <div class="avatar av-2" style="margin:0 auto 8px;">ZB</div>
+      <div style="font-size:13px;font-weight:600;color:white;">Zohra</div>
+      <div style="font-size:11px;color:rgba(255,255,255,.4);">Assistante</div>
+    </button>
+  </div>
+
+  <!-- Saisie PIN -->
+  <div id="pin-panel" style="display:none;width:100%;max-width:300px;text-align:center;">
+    <div id="pin-name" style="color:white;font-size:15px;font-weight:600;margin-bottom:4px;"></div>
+    <div style="color:rgba(255,255,255,.4);font-size:12px;margin-bottom:1.25rem;">Entrez votre code PIN</div>
+    <!-- Affichage des points -->
+    <div id="pin-dots" style="display:flex;justify-content:center;gap:12px;margin-bottom:1.5rem;">
+      <div class="pin-dot"></div><div class="pin-dot"></div><div class="pin-dot"></div><div class="pin-dot"></div>
+    </div>
+    <!-- Clavier numérique -->
+    <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:10px;max-width:240px;margin:0 auto;">
+      <button class="pin-key" onclick="pinKey('1')">1</button>
+      <button class="pin-key" onclick="pinKey('2')">2</button>
+      <button class="pin-key" onclick="pinKey('3')">3</button>
+      <button class="pin-key" onclick="pinKey('4')">4</button>
+      <button class="pin-key" onclick="pinKey('5')">5</button>
+      <button class="pin-key" onclick="pinKey('6')">6</button>
+      <button class="pin-key" onclick="pinKey('7')">7</button>
+      <button class="pin-key" onclick="pinKey('8')">8</button>
+      <button class="pin-key" onclick="pinKey('9')">9</button>
+      <button class="pin-key" onclick="pinKey('back')" style="background:rgba(255,255,255,.08);">⌫</button>
+      <button class="pin-key" onclick="pinKey('0')">0</button>
+      <button class="pin-key" onclick="selectLoginEmp(null)" style="background:rgba(255,255,255,.08);">✕</button>
+    </div>
+    <div id="pin-error" style="color:#F87171;font-size:12px;margin-top:12px;min-height:18px;"></div>
+  </div>
+</div>
+
+<style>
+.login-emp-btn{background:rgba(255,255,255,.07);border:1px solid rgba(255,255,255,.12);border-radius:14px;padding:16px 12px;cursor:pointer;transition:background .15s;text-align:center;}
+.login-emp-btn:hover{background:rgba(255,255,255,.14);}
+.pin-dot{width:14px;height:14px;border-radius:50%;background:rgba(255,255,255,.2);transition:background .15s;}
+.pin-dot.filled{background:white;}
+.pin-key{background:rgba(255,255,255,.1);border:1px solid rgba(255,255,255,.15);border-radius:12px;color:white;font-size:20px;font-weight:500;padding:16px;cursor:pointer;font-family:inherit;transition:background .15s;}
+.pin-key:hover{background:rgba(255,255,255,.2);}
+.pin-key:active{background:rgba(255,255,255,.3);}
+/* Barre utilisateur connecté */
+.user-bar{background:rgba(255,255,255,.06);border-bottom:1px solid rgba(255,255,255,.1);padding:6px 1.25rem;display:flex;align-items:center;gap:8px;}
+.user-bar-name{color:rgba(255,255,255,.7);font-size:12px;font-weight:500;}
+.user-bar-btn{background:none;border:none;color:rgba(255,255,255,.4);font-size:11px;cursor:pointer;padding:2px 8px;border-radius:4px;}
+.user-bar-btn:hover{color:white;background:rgba(255,255,255,.1);}
+</style>
+
+<!-- Barre utilisateur connecté (visible après login) -->
+<div id="user-bar" class="user-bar" style="display:none;">
+  <div class="avatar" id="user-bar-avatar" style="width:22px;height:22px;font-size:9px;font-weight:700;"></div>
+  <div class="user-bar-name" id="user-bar-name"></div>
+  <div style="flex:1;"></div>
+  <button class="user-bar-btn" onclick="logout()">Déconnexion</button>
+</div>
+
 <nav class="tabs-bar">
   <button class="tab-btn active" onclick="switchTab('equipe',this)">Équipe</button>
   <button class="tab-btn" onclick="switchTab('agenda',this)">Agenda</button>
@@ -394,6 +470,9 @@ body{font-family:'Inter',-apple-system,sans-serif;background:var(--bg);color:var
       <button class="qr-btn-depart" id="qr-btn-depart" onclick="qrPointer('depart')" disabled>↪ Départ</button>
     </div>
     <div class="qr-lock">🔒 Horodatage automatique · non modifiable</div>
+    <button onclick="openCamera()" style="margin-top:14px;background:rgba(255,255,255,.1);border:1px solid rgba(255,255,255,.2);color:white;padding:10px 20px;border-radius:10px;font-size:13px;font-weight:600;cursor:pointer;font-family:inherit;display:inline-flex;align-items:center;gap:8px;">
+      📷 Ouvrir l'appareil photo
+    </button>
   </div>
   <div class="card">
     <div class="card-label">Semaine en cours</div>
@@ -414,8 +493,11 @@ body{font-family:'Inter',-apple-system,sans-serif;background:var(--bg);color:var
       <button class="btn btn-navy" style="margin-top:0;" onclick="checkAdmin()">Valider</button>
     </div>
     <div id="admin-extra" style="display:none;margin-top:1rem;border-top:1px solid var(--border);padding-top:1rem;">
-      <div style="font-size:12px;color:var(--slate);margin-bottom:10px;">Zone gérant — données actuellement enregistrées</div>
-      <button class="btn" style="width:100%;color:var(--red);border-color:var(--red-light);background:var(--red-light);" onclick="resetAll()">🗑 Effacer toutes les données</button>
+      <div style="font-size:12px;color:var(--slate);margin-bottom:12px;font-weight:600;">Zone gérant</div>
+      <!-- Gestion des PINs -->
+      <div style="font-size:11px;text-transform:uppercase;letter-spacing:.5px;color:var(--slate-light);margin-bottom:8px;">Codes PIN des employés</div>
+      <div id="pins-editor" style="margin-bottom:14px;"></div>
+      <button class="btn" style="width:100%;color:var(--red);border-color:var(--red-light);background:var(--red-light);margin-top:4px;" onclick="resetAll()">🗑 Effacer toutes les données</button>
     </div>
   </div>
 </div>
@@ -436,6 +518,7 @@ const STORE_HS    = "rmv_hs_v2";
 const STORE_RECUP = "rmv_recup_v2";
 const STORE_CG    = "rmv_cg_v1";
 const STORE_CGSOLDE = "rmv_cgsolde_v1";
+const STORE_PINS  = "rmv_pins_v1";
 
 const EMPLOYEES = [
   { name:"Randy Beades",   role:"Gestionnaire Copro", initials:"RB" },
@@ -451,6 +534,7 @@ const MONTH_NAMES = ["Janvier","Février","Mars","Avril","Mai","Juin","Juillet",
 
 let adminMode    = false;
 let agendaFilterEmp = null;
+let currentUser  = null; // index employé connecté, null = non connecté
 let agendaMonth  = new Date().getMonth();
 let agendaYear   = new Date().getFullYear();
 let moisMonth    = new Date().getMonth();
@@ -468,6 +552,8 @@ function saveHS(d)      { localStorage.setItem(STORE_HS, JSON.stringify(d)); }
 function saveRecup(d)   { localStorage.setItem(STORE_RECUP, JSON.stringify(d)); }
 function saveCG(d)      { localStorage.setItem(STORE_CG, JSON.stringify(d)); }
 function saveCGSolde(d) { localStorage.setItem(STORE_CGSOLDE, JSON.stringify(d)); }
+function loadPins()    { try{return JSON.parse(localStorage.getItem(STORE_PINS))||["0000","0000","0000"];} catch{return ["0000","0000","0000"];} }
+function savePins(d)   { localStorage.setItem(STORE_PINS, JSON.stringify(d)); }
 
 function sanitize() {
   // Remet à zéro toutes les données sauf la structure employés
@@ -775,6 +861,7 @@ function renderConges(){
 
 function demanderConge(){
   const emp=parseInt(document.getElementById("cg-emp").value);
+  if(!canEdit(emp)){showToast("Vous ne pouvez soumettre que vos propres demandes");return;}
   const type=document.getElementById("cg-type").value;
   const debut=document.getElementById("cg-debut").value;
   const fin=document.getElementById("cg-fin").value;
@@ -814,6 +901,7 @@ function renderRecup(){
 
 function demanderRecup(){
   const emp=parseInt(document.getElementById("recup-emp").value);
+  if(!canEdit(emp)){showToast("Vous ne pouvez soumettre que vos propres demandes");return;}
   const date=document.getElementById("recup-date").value;
   const h=parseFloat(document.getElementById("recup-h").value);
   const motif=document.getElementById("recup-motif").value.trim();
@@ -838,6 +926,7 @@ function repondreRecup(id,status){
 
 /* ══ MON MOIS ══ */
 function renderMois(){
+  if(currentUser!==null) document.getElementById("mois-emp").value=currentUser;
   const idx=parseInt(document.getElementById("mois-emp").value);
   const pt=loadPT()[idx]||{};const hs=loadHS()[idx]||[];
   document.getElementById("mois-title").textContent=MONTH_NAMES[moisMonth]+" "+moisYear;
@@ -873,6 +962,7 @@ function changeMoisMonth(dir){
 
 function addHsuppEntry(){
   const idx=parseInt(document.getElementById("mois-emp").value);
+  if(!canEdit(idx)){showToast("Vous ne pouvez modifier que vos propres heures");return;}
   const date=document.getElementById("hs-date").value||todayISO();
   const type=document.getElementById("hs-type").value;
   const h=parseFloat(document.getElementById("hs-h").value);
@@ -903,6 +993,7 @@ function selectQrEmp(i){qrSelected=i;renderPointage();}
 
 function qrPointer(type){
   if(qrSelected===null)return;
+  if(!canEdit(qrSelected)){showToast("Sélectionnez votre propre profil");return;}
   const today=todayISO();const pt=loadPT();
   if(!pt[qrSelected])pt[qrSelected]={};
   if(!pt[qrSelected][today])pt[qrSelected][today]={};
@@ -957,6 +1048,7 @@ function checkAdmin(){
     document.getElementById("admin-code-input").previousElementSibling.style.display="none";
     const btns=document.querySelector(".modal-btns");btns.style.display="none";
     document.querySelector(".modal-sub").textContent="Mode gérant activé.";
+    renderPinsEditor();
     showToast("Mode admin activé","ok");renderAll();
   } else {showToast("Code incorrect");}
 }
@@ -974,7 +1066,129 @@ function switchTab(tab,el){
   if(tab==="pointage") renderPointage();
 }
 
+/* ══ LOGIN PIN ══ */
+let pinBuffer = "";
+let loginEmpIdx = null;
+
+function selectLoginEmp(idx) {
+  if (idx === null) {
+    loginEmpIdx = null;
+    pinBuffer = "";
+    document.getElementById("pin-panel").style.display = "none";
+    document.querySelectorAll(".login-emp-btn").forEach(b => b.style.opacity = "1");
+    return;
+  }
+  loginEmpIdx = idx;
+  pinBuffer = "";
+  document.getElementById("pin-name").textContent = EMPLOYEES[idx].name;
+  document.getElementById("pin-panel").style.display = "block";
+  document.getElementById("pin-error").textContent = "";
+  document.querySelectorAll(".login-emp-btn").forEach((b,i) => b.style.opacity = i===idx?"1":"0.4");
+  updatePinDots();
+}
+
+function pinKey(val) {
+  if (val === "back") {
+    pinBuffer = pinBuffer.slice(0,-1);
+    updatePinDots();
+    return;
+  }
+  if (pinBuffer.length >= 4) return;
+  pinBuffer += val;
+  updatePinDots();
+  if (pinBuffer.length === 4) {
+    setTimeout(checkPin, 120);
+  }
+}
+
+function updatePinDots() {
+  document.querySelectorAll(".pin-dot").forEach((d,i) => {
+    d.classList.toggle("filled", i < pinBuffer.length);
+  });
+}
+
+function checkPin() {
+  const pins = loadPins();
+  if (pinBuffer === pins[loginEmpIdx]) {
+    currentUser = loginEmpIdx;
+    document.getElementById("login-screen").style.display = "none";
+    showUserBar();
+    renderAll();
+    renderEquipe();
+  } else {
+    document.getElementById("pin-error").textContent = "Code incorrect, réessayez.";
+    pinBuffer = "";
+    updatePinDots();
+    // Shake effect
+    const panel = document.getElementById("pin-dots");
+    panel.style.transform = "translateX(-8px)";
+    setTimeout(()=>panel.style.transform="translateX(8px)",100);
+    setTimeout(()=>panel.style.transform="",200);
+  }
+}
+
+function showUserBar() {
+  const emp = EMPLOYEES[currentUser];
+  const bar = document.getElementById("user-bar");
+  bar.style.display = "flex";
+  const av = document.getElementById("user-bar-avatar");
+  av.textContent = emp.initials;
+  av.className = "avatar av-"+currentUser;
+  av.style.cssText = "width:22px;height:22px;font-size:9px;font-weight:700;";
+  document.getElementById("user-bar-name").textContent = emp.name + " · connecté";
+}
+
+function logout() {
+  currentUser = null;
+  document.getElementById("login-screen").style.display = "flex";
+  document.getElementById("user-bar").style.display = "none";
+  loginEmpIdx = null;
+  pinBuffer = "";
+  document.getElementById("pin-panel").style.display = "none";
+  document.querySelectorAll(".login-emp-btn").forEach(b => b.style.opacity = "1");
+  updatePinDots();
+}
+
+// Restreindre les actions selon currentUser
+function canEdit(empIdx) {
+  return currentUser === empIdx;
+}
+
+/* ══ CAMÉRA QR ══ */
+function openCamera() {
+  // Ouvre directement l'appareil photo en mode scan (input file capture)
+  const input = document.createElement("input");
+  input.type = "file";
+  input.accept = "image/*";
+  input.capture = "environment"; // caméra arrière
+  input.onchange = () => {}; // pas de traitement, juste ouvrir la caméra
+  input.click();
+}
+
 function renderAll(){renderEquipe();renderConges();renderRecup();}
+
+function renderPinsEditor() {
+  const pins = loadPins();
+  const html = EMPLOYEES.map((emp, i) => `
+    <div style="display:flex;align-items:center;gap:10px;margin-bottom:8px;">
+      <div class="avatar av-${i}" style="width:28px;height:28px;font-size:10px;">${emp.initials}</div>
+      <div style="flex:1;font-size:13px;font-weight:500;">${emp.name.split(" ")[0]}</div>
+      <input type="text" maxlength="4" pattern="[0-9]*" inputmode="numeric"
+        value="${pins[i]}"
+        style="width:70px;font-size:14px;text-align:center;padding:6px;border:1px solid var(--border-strong);border-radius:7px;font-variant-numeric:tabular-nums;"
+        onchange="updatePin(${i}, this.value)"
+        placeholder="0000" />
+    </div>`).join("");
+  document.getElementById("pins-editor").innerHTML = html;
+}
+
+function updatePin(idx, val) {
+  if (!/^[0-9]{4}$/.test(val)) { showToast("PIN invalide (4 chiffres)"); return; }
+  const pins = loadPins();
+  pins[idx] = val;
+  savePins(pins);
+  showToast("PIN de "+EMPLOYEES[idx].name.split(" ")[0]+" mis à jour","ok");
+}
 
 function resetAll(){
   if(!adminMode)return;
@@ -1000,7 +1214,8 @@ function showToast(msg,type){
   setTimeout(()=>t.classList.remove("show"),2800);
 }
 
-renderEquipe();
+// Démarrage — afficher l'écran de connexion
+document.getElementById("login-screen").style.display = "flex";
 </script>
 </body>
 </html>
