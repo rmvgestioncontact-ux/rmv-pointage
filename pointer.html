@@ -1,0 +1,218 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no">
+<title>Pointage — RMV Gestion</title>
+<style>
+*{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent;}
+body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;background:#1C2B4A;min-height:100vh;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:1.5rem;user-select:none;}
+.logo{color:rgba(255,255,255,.4);font-size:11px;letter-spacing:2px;text-transform:uppercase;margin-bottom:1.5rem;}
+.clock{color:#fff;font-size:58px;font-weight:200;font-variant-numeric:tabular-nums;letter-spacing:-2px;line-height:1;}
+.datestr{color:rgba(255,255,255,.4);font-size:14px;margin-top:6px;margin-bottom:2.5rem;text-transform:capitalize;}
+.card{background:#fff;border-radius:20px;padding:1.75rem 1.5rem;width:100%;max-width:380px;box-shadow:0 24px 64px rgba(0,0,0,.35);}
+.card-title{font-size:11px;font-weight:700;letter-spacing:1.2px;text-transform:uppercase;color:#8896A8;margin-bottom:1.25rem;}
+.emp-list{display:flex;flex-direction:column;gap:8px;}
+.emp-btn{display:flex;align-items:center;gap:12px;padding:14px;border:1.5px solid #E3E7EE;border-radius:12px;background:#F5F6F8;cursor:pointer;width:100%;text-align:left;font-family:inherit;transition:all .15s;}
+.emp-btn:active{transform:scale(.98);}
+.emp-btn.sel{border-color:#2D7D5A;background:#E8F5EF;}
+.av{width:42px;height:42px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:13px;font-weight:700;flex-shrink:0;}
+.av-0{background:#D1FAE5;color:#065F46;}
+.av-1{background:#FCE7F3;color:#9D174D;}
+.av-2{background:#FEF9C3;color:#854D0E;}
+.emp-name{font-size:14px;font-weight:600;color:#1C2B4A;}
+.emp-role{font-size:12px;color:#8896A8;margin-top:1px;}
+.emp-state{font-size:11px;font-weight:600;padding:3px 8px;border-radius:20px;flex-shrink:0;}
+.s-in{background:#D1FAE5;color:#065F46;}
+.s-out{background:#F1F5F9;color:#64748B;}
+.divider{height:1px;background:#E3E7EE;margin:1.25rem 0;}
+.greet{font-size:14px;color:#4A5568;margin-bottom:1rem;}
+.greet strong{color:#1C2B4A;}
+.action-btns{display:grid;grid-template-columns:1fr 1fr;gap:10px;}
+.btn-arr{padding:18px 12px;background:#2D7D5A;color:#fff;border:none;border-radius:12px;font-size:15px;font-weight:700;cursor:pointer;font-family:inherit;display:flex;flex-direction:column;align-items:center;gap:4px;}
+.btn-dep{padding:18px 12px;background:#1C2B4A;color:#fff;border:none;border-radius:12px;font-size:15px;font-weight:700;cursor:pointer;font-family:inherit;display:flex;flex-direction:column;align-items:center;gap:4px;}
+.btn-arr:disabled,.btn-dep:disabled{opacity:.3;cursor:not-allowed;}
+.btn-sub{font-size:11px;font-weight:400;opacity:.75;}
+.lock{font-size:11px;color:#A0AEC0;text-align:center;margin-top:10px;}
+.action-zone{display:none;}
+.action-zone.on{display:block;}
+/* SUCCÈS */
+.success{display:none;position:fixed;inset:0;background:#1C2B4A;z-index:99;flex-direction:column;align-items:center;justify-content:center;text-align:center;padding:2rem;}
+.success.on{display:flex;}
+.suc-icon{font-size:80px;margin-bottom:1.5rem;animation:pop .4s ease;}
+.suc-title{color:#fff;font-size:28px;font-weight:700;margin-bottom:8px;}
+.suc-time{color:#fff;font-size:52px;font-weight:200;font-variant-numeric:tabular-nums;margin-bottom:8px;}
+.suc-sub{color:rgba(255,255,255,.5);font-size:15px;margin-bottom:2rem;}
+.suc-back{background:rgba(255,255,255,.1);border:1px solid rgba(255,255,255,.2);color:#fff;padding:12px 28px;border-radius:12px;font-size:14px;font-weight:600;cursor:pointer;font-family:inherit;}
+/* LOADING */
+.loading{display:none;position:fixed;inset:0;background:rgba(28,43,74,.7);z-index:50;align-items:center;justify-content:center;}
+.loading.on{display:flex;}
+.spinner{width:44px;height:44px;border:3px solid rgba(255,255,255,.2);border-top-color:#fff;border-radius:50%;animation:spin .7s linear infinite;}
+@keyframes spin{to{transform:rotate(360deg)}}
+@keyframes pop{0%{transform:scale(.5);opacity:0}70%{transform:scale(1.15)}100%{transform:scale(1);opacity:1}}
+</style>
+</head>
+<body>
+<div class="logo">RMV Gestion</div>
+<div class="clock" id="clock">--:--:--</div>
+<div class="datestr" id="datestr">—</div>
+
+<div class="card">
+  <div class="card-title">Qui êtes-vous ?</div>
+  <div class="emp-list" id="emp-list"></div>
+  <div class="action-zone" id="action-zone">
+    <div class="divider"></div>
+    <div class="greet">Bonjour <strong id="greet-name"></strong> 👋</div>
+    <div class="action-btns">
+      <button class="btn-arr" id="btn-arr" onclick="pointer('arrivee')">
+        <span style="font-size:24px;">✓</span>
+        <span>Arrivée</span>
+        <span class="btn-sub" id="arr-txt">—</span>
+      </button>
+      <button class="btn-dep" id="btn-dep" onclick="pointer('depart')">
+        <span style="font-size:24px;">↪</span>
+        <span>Départ</span>
+        <span class="btn-sub" id="dep-txt">—</span>
+      </button>
+    </div>
+    <div class="lock">🔒 Horodatage automatique — non modifiable</div>
+  </div>
+</div>
+
+<div class="success" id="success">
+  <div class="suc-icon" id="suc-icon">✅</div>
+  <div class="suc-title" id="suc-title">Arrivée enregistrée</div>
+  <div class="suc-time" id="suc-time">--:--</div>
+  <div class="suc-sub" id="suc-sub">Bonne journée !</div>
+  <button class="suc-back" onclick="hideSuc()">← Retour</button>
+</div>
+
+<div class="loading" id="loading"><div class="spinner"></div></div>
+
+<script>
+const SB_URL = "https://nkxcjyqmyozgxmadyzpx.supabase.co";
+const SB_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im5reGNqeXFteW96Z3htYWR5enB4Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODI3Mzk2ODAsImV4cCI6MjA5ODMxNTY4MH0.mhx80RM6jjpHG0HnwobEJTECmWLBxWDjY3PmWPbiM1I";
+
+const EMPS = [
+  {name:"Randy Beades",  role:"Gestionnaire Copro", initials:"RB"},
+  {name:"Laura Pauline", role:"Gestionnaire Loc",   initials:"LP"},
+  {name:"Zohra Boulligh",role:"Assistante",         initials:"ZB"},
+];
+
+let selIdx  = null;
+let todayPt = {}; // { empIdx: {arrivee, depart} }
+
+/* ── HORLOGE ── */
+function tick(){
+  const n=new Date();
+  document.getElementById("clock").textContent=n.toLocaleTimeString("fr-FR",{hour:"2-digit",minute:"2-digit",second:"2-digit"});
+  document.getElementById("datestr").textContent=n.toLocaleDateString("fr-FR",{weekday:"long",day:"numeric",month:"long"});
+}
+setInterval(tick,1000);tick();
+
+function todayISO(){return new Date().toISOString().slice(0,10);}
+function nowHM(){return new Date().toLocaleTimeString("fr-FR",{hour:"2-digit",minute:"2-digit"});}
+
+/* ── SUPABASE ── */
+const hdrs=()=>({
+  "apikey":SB_KEY,
+  "Authorization":"Bearer "+SB_KEY,
+  "Content-Type":"application/json",
+  "Prefer":"return=minimal"
+});
+
+async function loadToday(){
+  load(true);
+  try{
+    const r=await fetch(`${SB_URL}/rest/v1/pointages?date=eq.${todayISO()}&order=created_at.asc`,{headers:hdrs()});
+    const rows=await r.json();
+    todayPt={};
+    rows.forEach(row=>{
+      if(!todayPt[row.employe_idx])todayPt[row.employe_idx]={};
+      todayPt[row.employe_idx][row.type]=row.heure;
+    });
+  }catch(e){console.error(e);}
+  load(false);
+  renderList();
+}
+
+async function pointer(type){
+  if(selIdx===null)return;
+  const entry=todayPt[selIdx]||{};
+  if(type==="arrivee"&&entry.arrivee)return;
+  if(type==="depart"&&(!entry.arrivee||entry.depart))return;
+  load(true);
+  const heure=nowHM();
+  try{
+    const r=await fetch(`${SB_URL}/rest/v1/pointages`,{
+      method:"POST",headers:hdrs(),
+      body:JSON.stringify({employe_idx:selIdx,date:todayISO(),type,heure})
+    });
+    if(r.ok||r.status===201){
+      if(!todayPt[selIdx])todayPt[selIdx]={};
+      todayPt[selIdx][type]=heure;
+      load(false);
+      showSuc(type,heure);
+      renderList();
+    } else {
+      load(false);
+      alert("Erreur d'enregistrement ("+r.status+"). Réessayez.");
+    }
+  }catch(e){load(false);alert("Erreur réseau. Vérifiez votre connexion.");}
+}
+
+/* ── RENDU ── */
+function renderList(){
+  document.getElementById("emp-list").innerHTML=EMPS.map((e,i)=>{
+    const p=todayPt[i]||{};
+    const isIn=p.arrivee&&!p.depart;
+    const isOut=p.arrivee&&p.depart;
+    const stLbl=isIn?"Présent":isOut?"Sorti":"";
+    const stCls=isIn?"s-in":isOut?"s-out":"";
+    const detail=isIn?`Arrivée ${p.arrivee}`:isOut?`${p.arrivee} → ${p.depart}`:"Non pointé";
+    return`<button class="emp-btn${selIdx===i?" sel":""}" onclick="select(${i})">
+      <div class="av av-${i}">${e.initials}</div>
+      <div style="flex:1;"><div class="emp-name">${e.name}</div><div class="emp-role">${detail}</div></div>
+      ${stLbl?`<span class="emp-state ${stCls}">${stLbl}</span>`:""}
+    </button>`;
+  }).join("");
+  if(selIdx!==null)updateAction();
+}
+
+function select(i){
+  selIdx=i;
+  renderList();
+  const az=document.getElementById("action-zone");
+  az.classList.add("on");
+  updateAction();
+  az.scrollIntoView({behavior:"smooth",block:"nearest"});
+}
+
+function updateAction(){
+  const e=EMPS[selIdx];
+  const p=todayPt[selIdx]||{};
+  document.getElementById("greet-name").textContent=e.name.split(" ")[0];
+  document.getElementById("arr-txt").textContent=p.arrivee||"Pas encore";
+  document.getElementById("dep-txt").textContent=p.depart||"Pas encore";
+  document.getElementById("btn-arr").disabled=!!p.arrivee;
+  document.getElementById("btn-dep").disabled=!p.arrivee||!!p.depart;
+}
+
+/* ── SUCCÈS ── */
+function showSuc(type,heure){
+  const e=EMPS[selIdx];
+  document.getElementById("suc-icon").textContent=type==="arrivee"?"✅":"👋";
+  document.getElementById("suc-title").textContent=type==="arrivee"?"Arrivée enregistrée !":"Départ enregistré !";
+  document.getElementById("suc-time").textContent=heure;
+  document.getElementById("suc-sub").textContent=type==="arrivee"?"Bonne journée "+e.name.split(" ")[0]+" !":"À demain "+e.name.split(" ")[0]+" !";
+  document.getElementById("success").classList.add("on");
+  if(navigator.vibrate)navigator.vibrate([100,50,100]);
+  setTimeout(hideSuc,5000);
+}
+function hideSuc(){document.getElementById("success").classList.remove("on");}
+function load(v){document.getElementById("loading").classList.toggle("on",v);}
+
+loadToday();
+</script>
+</body>
+</html>
